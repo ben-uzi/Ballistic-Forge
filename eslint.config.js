@@ -28,8 +28,13 @@ export default tseslint.config(
     },
   },
   {
-    files: ['*.{js,ts}', 'scripts/**/*.{js,ts}', '**/*.config.{js,ts}'],
+    files: ['*.{js,mjs,ts}', 'scripts/**/*.{js,mjs,ts}', '**/*.config.{js,mjs,ts}'],
     languageOptions: { globals: globals.node },
+  },
+  {
+    // The service worker is plain JS running in a worker global scope.
+    files: ['apps/web/public/sw.js'],
+    languageOptions: { globals: globals.serviceworker },
   },
   {
     // The engine must stay pure and portable to React Native: no any, no DOM, no network, no Node APIs.

@@ -5,7 +5,30 @@ _Running draft. Written in full at the end of Phase 8 (see `docs/BUILD_BRIEF.md`
 ## Status
 
 - Phase 0 (scaffold) — complete.
-- Phase 1 (engine) — complete. 143 tests; 99.8% line / 92.9% branch coverage. See `PLAN.md`.
+- Phase 1 (engine) — complete. 143 tests; 99.8% line / 92.9% branch coverage.
+- Phase 2 (web shell + calculator) — complete. 71 further tests. See `PLAN.md`.
+
+## Running it
+
+```bash
+pnpm install
+pnpm dev            # http://localhost:3000 — the calculator works with no env vars
+pnpm gate           # typecheck + lint + test, the bar every phase must clear
+```
+
+With no `.env.local` the app is in **demo mode**: the calculator is fully functional, profiles are
+stored in the browser, and there are no accounts. `apps/web/.env.example` documents what to fill in
+(NEEDS_CHAD 1).
+
+## What works today
+
+- `/` — landing, three pillars, beta waitlist (logs to the server in demo mode and says so).
+- `/calc` — the solver: bullet/load, rifle and conditions groups; sticky solution table with
+  transonic flagging; Drop / Velocity / Energy / Drift charts; compare up to three loads; US and
+  metric units throughout; inline validation; works offline once loaded.
+- `/legal/*` — DRAFT terms, privacy and disclaimer.
+
+Everything else in the navigation is shown as "soon" and is not yet built.
 
 ## Engine: known physics limitations (as of Phase 1)
 
@@ -34,3 +57,20 @@ import { solve, standardDragModel, rangeSteps, buildDope, CLICK_VALUES } from '@
 All inputs are SI (`muzzleVelocityMps`, `sightHeightM`, `temperatureK` …); convert with the helpers
 in `units.ts`. `solve()` throws `BallisticsInputError` for invalid input; call
 `validateSolveInput()` first to show issues inline.
+
+## Web quick reference
+
+The web app never calls the engine directly from a component. The seam is
+`apps/web/src/lib/calc/`:
+
+| Module      | Responsibility                                                   |
+| ----------- | ---------------------------------------------------------------- |
+| `types.ts`  | `CalcForm` — every number in the unit the user sees              |
+| `map.ts`    | the only conversion from form units to the engine's SI input     |
+| `units.ts`  | re-expressing a form in different units without changing physics |
+| `solve.ts`  | `runCalc()` — validate, solve, attach turret corrections         |
+| `issues.ts` | engine validation paths → form fields                            |
+| `format.ts` | display formatting                                               |
+
+Persistence goes through `getStore()` (`lib/store/`), which returns the guest `LocalStore` today and
+a `SupabaseStore` once the backend exists.

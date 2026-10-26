@@ -21,8 +21,11 @@ built to work around every item here (demo mode, mocks, flags) until it's resolv
 ### 3. Vercel project + BallisticsMD.com DNS
 
 - **Why:** deployment.
-- **Steps:** import the repo in Vercel (root: `apps/web`), add env vars from item 1, then add the
-  domain under Project → Domains and set the DNS records Vercel shows at your registrar.
+- **Steps:** create the project against this repo with **root directory `apps/web`**; the build
+  command is the default (`next build`) and the install command must run at the workspace root so
+  pnpm links `@bf/engine`. Add the env vars from item 1 (none are required for demo mode). Then
+  Project → Domains → add `ballisticsmd.com` and create the records Vercel shows at your registrar.
+  Until the domain is attached the app lives on its `*.vercel.app` URL.
 
 ### 4. External reference trajectories
 
@@ -51,8 +54,12 @@ built to work around every item here (demo mode, mocks, flags) until it's resolv
 
 ### 5. Logo and brand assets
 
-- **Why:** a placeholder SVG anvil/crosshair mark ships in Phase 2.
-- **Steps:** drop final SVGs into `apps/web/public/brand/` with the same filenames.
+- **Why:** a placeholder scope-reticle mark ships in Phase 2 (an anvil silhouette reads as a bowtie
+  at favicon size, so the reticle was chosen instead — see DECISIONS).
+- **Steps:** replace `apps/web/public/brand/logo.svg` and `wordmark.svg`, the inline mark in
+  `apps/web/src/components/shell/logo.tsx`, and `apps/web/src/app/icon.svg`. For the PWA icons,
+  either overwrite `apps/web/public/icons/*.png` directly or point
+  `scripts/gen-icons.mjs` at the final artwork and re-run `node scripts/gen-icons.mjs`.
 
 ### 6. Attorney review of legal copy
 

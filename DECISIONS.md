@@ -82,3 +82,42 @@ One line each: **decision** — reason — how to reverse.
 - **Separate `tsconfig.test.json` (adds Node types) so `src` stays free of DOM/Node globals** — tests need `performance`; the engine must not — n/a.
 - **The performance test runs in a separate, non-coverage Vitest pass** — coverage instrumentation slows the solver ~3–4× and would make the timing assertion meaningless — n/a.
 - **Performance budget asserted at < 10 ms on desktop (5× margin under the 50 ms phone target)** — measured 5.9 ms — loosen if CI hardware is slower.
+
+## Phase 2 — Web shell + calculator
+
+### Framework & styling
+
+- **Next.js 16.4.3 (App Router, Turbopack) + React 19.3, hand-scaffolded rather than `create-next-app`** — the app is a workspace package inside an existing monorepo with a shared strict `tsconfig.base.json`; the generator would have fought all three — delete `apps/web` and re-run the generator if the hand-written config ever drifts.
+- **Tailwind CSS v4 with CSS-first `@theme` tokens in `globals.css`; no `tailwind.config.js`** — v4's config lives in CSS, and the brand scale is then readable in one place — add a JS config if a plugin needs it.
+- **shadcn/ui components written by hand on Radix primitives instead of running the shadcn CLI** — the CLI assumes its own path aliases and a `components.json`; the eight primitives actually used are small and now match the brand directly — run the CLI into `src/components/ui` if the component count grows.
+- **`baseUrl` dropped from `apps/web/tsconfig.json`, `paths` kept** — TS 6 deprecates `baseUrl`; `paths` resolve relative to the tsconfig without it — n/a.
+- **Dark only; no theme switcher** — brief §4 makes dark canonical, and a half-done light theme is worse than none — add a `data-theme` layer over the same tokens.
+
+### Calculator
+
+- **The form stores numbers in the unit the user sees, tagged by a `units` block, and `toSolveInput` is the only conversion to SI** — what is on screen round-trips exactly, and there is one tested seam between UI and engine instead of conversions scattered through components — n/a.
+- **Switching units converts the stored values (`withUnits`) at a documented per-quantity precision** — flipping to metric must preserve the physical quantity, not reinterpret the number; grams carry 3 decimals so a 140 gr bullet round-trips — edit `DIGITS` in `lib/calc/units.ts`.
+- **The solver runs synchronously on the main thread; no Web Worker** — the brief only asks for a worker if the 50 ms budget is exceeded, and it is not: the integrator's cost is set by the time step, not the reported row count, so a full solve measures ~6 ms and three compared loads ~18 ms. `useDeferredValue` keeps typing smooth — move `runCalc` into a worker if a 6DOF or custom-drag model lands.
+- **Row cap of 400 (`MAX_ROWS`), reported in the UI when it bites** — a 1 yd step to 3,000 yd would render 3,000 DOM rows for no benefit — raise `MAX_ROWS`.
+- **Engine validation paths are mapped to form fields (`lib/calc/issues.ts`) so messages appear under the input that caused them** — a list of errors above the form makes the user hunt — add entries to `PATH_TO_FIELD` when the engine grows a new path.
+- **The calculator table shows the actual wind's windage; `buildDope`'s full-value hold columns are reserved for the DOPE card (Phase 4)** — on screen the user has entered a real wind and wants the real answer — n/a.
+- **Zero conditions reuse the current pressure, overriding only temperature and altitude** — shooters remember where and how cold they zeroed far more often than the barometer, and those two dominate the density change — add a pressure field to the zero block.
+- **The calculator form is persisted to `localStorage` and restored after mount (not during SSR)** — a reload at the range must not lose the setup, and hydration must not mismatch — n/a.
+
+### Chart colours
+
+- **Series palette `#C08209 / #5590D0 / #44A06A`, validated with the dataviz six checks against the `#22223A` chart surface** — all three sit inside the dark lightness band, clear the chroma floor, hold ΔE ≥ 8 under protan/deutan simulation across every pair, and exceed 3:1 contrast. The brand amber `#C8860A` is marginally too light for the band, so slot 0 is one step down — re-run `validate_palette.js` before changing any of them.
+- **Colour follows the load, not its position in the list** — removing a compared load must not repaint the survivors — n/a.
+
+### Persistence, flags, PWA
+
+- **`ProfileStore` interface with `LocalStore` (guest) and a `SupabaseStore` stub; `getStore()` returns the local one in Phase 2** — call sites never learn which backend they have, so Phase 3 swaps one line — n/a.
+- **The Supabase stub throws rather than returning empty data** — a half-wired project must fail loudly in development, not look like an empty account — n/a.
+- **Feature flags and entitlements are compile-time defaults in `lib/flags.ts` / `lib/entitlements.ts`** — Phase 3 moves the source of truth to `app_flags` with these as the fallback — n/a.
+- **Service worker written by hand (`public/sw.js`) rather than `next-pwa`** — `next-pwa` is unmaintained for the App Router; the caching rules are 100 readable lines and nothing has to track Next's build output — replace with Serwist if the rules grow.
+- **PWA icons generated by `scripts/gen-icons.mjs`, a zero-dependency rasteriser + PNG encoder** — the repo needs no image toolchain and the placeholder mark can be regenerated at any size — point the script at the real artwork, or just overwrite the PNGs (NEEDS_CHAD 5).
+- **The placeholder mark is a scope reticle rather than the anvil the brief suggested** — a symmetric anvil silhouette reads as a bowtie at 32 px; the reticle survives the favicon — replace with final artwork.
+- **Navigation lists unbuilt sections as disabled "soon" items instead of linking or hiding them** — honest about what the pilot does today without 404s — flip `ready` in `components/shell/nav-items.ts` as each phase lands.
+- **The waitlist endpoint logs to the server and tells the caller it was _not_ persisted while in demo mode** — a green tick over a dropped signup is worse than a blunt message — n/a (Phase 3 adds the insert).
+- **The pilot is `noindex`** — firearm owners are privacy-sensitive and the beta is invite-only — remove `robots` from the root metadata at launch.
+- **"Use my location" reads latitude only, rounds it to 0.1° before it reaches state, and never stores or transmits it** — enough for Coriolis, useless for identifying a shooting position (brief §10.4) — n/a.

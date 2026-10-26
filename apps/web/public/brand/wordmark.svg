@@ -1,0 +1,21 @@
+<!-- PLACEHOLDER wordmark. Replace with the final asset, same filename (NEEDS_CHAD 5). -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 40" width="320" height="40" role="img" aria-label="BALLISTIC FORGE">
+  <text
+    x="0"
+    y="27"
+    font-family="ui-sans-serif, system-ui, sans-serif"
+    font-size="24"
+    font-weight="700"
+    letter-spacing="3.5"
+    fill="#F2F2F5"
+  >BALLISTIC</text>
+  <text
+    x="157"
+    y="27"
+    font-family="ui-sans-serif, system-ui, sans-serif"
+    font-size="24"
+    font-weight="700"
+    letter-spacing="3.5"
+    fill="#C8860A"
+  >FORGE</text>
+</svg>

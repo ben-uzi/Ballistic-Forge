@@ -12,7 +12,7 @@ as `phase-N: <summary>`. Decisions go in `DECISIONS.md`, blockers in `NEEDS_CHAD
 | ----- | --------------------------------------------------- | ---------- | ------ |
 | 0     | Monorepo scaffold, tooling, tracking docs           | —          | ☑      |
 | 1     | `@bf/engine` — physics, test-first                  | 0          | ☑      |
-| 2     | Web shell + calculator (guest mode, no env vars)    | 1          | ☐      |
+| 2     | Web shell + calculator (guest mode, no env vars)    | 1          | ☑      |
 | 3     | Supabase schema, RLS, seed pipeline                 | 0          | ☐      |
 | 4     | Profiles, DOPE cards (PDF), Range mode              | 2, 3       | ☐      |
 | 5     | The Can — suppressor toggle + compatibility checker | 4          | ☐      |
@@ -133,29 +133,29 @@ Pure functions only — no React, DOM, or network. All internal math in SI.
 
 ## Phase 2 — Web shell + calculator §4, §6
 
-- [ ] Next.js (latest stable, App Router, TS strict) in `apps/web`, consuming `@bf/engine` via workspace
-- [ ] Tailwind + shadcn/ui; brand tokens: gunmetal scale (950→600 from `#1C1C2E`), amber `#C8860A`, muted status colors
-- [ ] Fonts: Inter (UI), JetBrains Mono / Source Code Pro with tabular numerals (data)
-- [ ] Placeholder SVG logo (anvil/crosshair + wordmark) — logged in NEEDS_CHAD
-- [ ] App shell: mobile-first nav, ≥ 44 px tap targets, dark default
-- [ ] Persistence abstraction: `LocalStore` (guest, localStorage) vs `SupabaseStore` — selected by env presence
-- [ ] Feature-flag + entitlement plumbing stubs (filled in Phase 3/7)
-- [ ] `/` landing: tagline, three pillars, "Join the beta" (Supabase `waitlist` or local log in demo mode); no fake stats
-- [ ] `/calc`:
-  - [ ] Collapsible groups: Bullet/Load, Rifle, Conditions
-  - [ ] Explicit station vs baro pressure selector with help text
-  - [ ] Opt-in "use my location" (coarse only, never stored at full precision)
-  - [ ] Sticky output table, configurable range start/end/step, transonic rows flagged
-  - [ ] Charts (Recharts): Drop, Velocity, Energy, Wind
-  - [ ] Compare mode: up to 3 loads overlaid
-  - [ ] Unverified-data badge wherever library data is unverified
-  - [ ] Solver in a Web Worker if main-thread solve exceeds budget
-  - [ ] Guest-mode prompt to create an account
-- [ ] Disclaimer on every solution (§13)
-- [ ] `/legal/terms`, `/legal/privacy`, `/legal/disclaimer` — DRAFT placeholders
-- [ ] PWA manifest + service worker; calculator works offline once loaded
-- [ ] Unit tests for form → engine input mapping
-- [ ] **Gate** → `phase-2: web shell + calculator`
+- [x] Next.js 16.4.3 (App Router, TS strict) in `apps/web`, consuming `@bf/engine` via workspace
+- [x] Tailwind v4 + hand-built shadcn/Radix components; brand tokens: gunmetal scale (950→600 from `#1C1C2E`), amber `#C8860A`, muted status colors
+- [x] Fonts: Inter (UI), Source Code Pro with tabular numerals (data, via the `.num` class)
+- [x] Placeholder SVG logo (scope reticle + wordmark) and generated PWA icons — logged in NEEDS_CHAD
+- [x] App shell: mobile-first nav, ≥ 44 px tap targets, dark default; unbuilt sections shown as disabled
+- [x] Persistence abstraction: `LocalStore` (guest, localStorage) vs `SupabaseStore` — `getStore()` selects
+- [x] Feature-flag + entitlement plumbing stubs (filled in Phase 3/7)
+- [x] `/` landing: tagline, three pillars, "Join the beta" (server log in demo mode); no fake stats
+- [x] `/calc`:
+  - [x] Collapsible groups: Bullet/Load, Rifle, Conditions
+  - [x] Explicit station vs baro pressure selector with help text
+  - [x] Opt-in "use my location" (latitude only, rounded to 0.1°, never stored)
+  - [x] Sticky output table, configurable range start/end/step, transonic rows flagged
+  - [x] Charts (Recharts): Drop, Velocity, Energy, Drift — palette validated for the dark surface
+  - [x] Compare mode: up to 3 loads overlaid
+  - [x] Unverified-data badge wherever library data is unverified
+  - [x] ~~Solver in a Web Worker~~ → not needed; main-thread solve measures ~6 ms (see DECISIONS)
+  - [x] Guest-mode prompt
+- [x] Disclaimer on every solution (§13)
+- [x] `/legal/terms`, `/legal/privacy`, `/legal/disclaimer` — DRAFT placeholders
+- [x] PWA manifest + hand-written service worker; calculator works offline once loaded
+- [x] Unit tests for form → engine input mapping (71 tests across mapping, units, solve, store, flags)
+- [x] **Gate** → `phase-2: web shell + calculator`
 
 ## Phase 3 — Data model & Supabase §7
 

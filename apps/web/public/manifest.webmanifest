@@ -1,0 +1,23 @@
+{
+  "name": "Ballistic Forge",
+  "short_name": "Forge",
+  "description": "Precision ballistics for the range: solver, DOPE cards and suppressor data.",
+  "start_url": "/calc",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#1C1C2E",
+  "theme_color": "#1C1C2E",
+  "categories": ["utilities", "sports"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    {
+      "src": "/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [{ "name": "Calculator", "url": "/calc" }]
+}

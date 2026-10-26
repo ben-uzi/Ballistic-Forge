@@ -1,0 +1,90 @@
+@import 'tailwindcss';
+
+/*
+ * Ballistic Forge brand tokens (BUILD_BRIEF §4).
+ * Gunmetal scale is built around the primary background #1C1C2E (gunmetal-900).
+ * Dark is canonical; there is no light theme in the pilot.
+ */
+@theme {
+  --color-gunmetal-950: #14141f;
+  --color-gunmetal-900: #1c1c2e;
+  --color-gunmetal-850: #22223a;
+  --color-gunmetal-800: #292944;
+  --color-gunmetal-700: #363654;
+  --color-gunmetal-600: #4a4a6a;
+
+  --color-forge-500: #c8860a;
+  --color-forge-400: #e0a01f;
+  --color-forge-600: #a06d08;
+
+  /* Status: muted, never neon. */
+  --color-pass-500: #4e9a6a;
+  --color-warn-500: #c8860a;
+  --color-fail-500: #b4544a;
+
+  --color-ink-100: #f2f2f5;
+  --color-ink-300: #c3c3cf;
+  --color-ink-500: #8b8b9e;
+  --color-ink-700: #5c5c70;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: var(--font-source-code-pro), ui-monospace, 'SFMono-Regular', monospace;
+
+  --radius-card: 0.5rem;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-gunmetal-700);
+  }
+
+  html {
+    color-scheme: dark;
+    /* Avoid iOS zoom-on-focus and keep the range screen steady. */
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-gunmetal-900);
+    color: var(--color-ink-100);
+    font-family: var(--font-sans);
+    /* Honest safe-area padding for a phone used one-handed at the range. */
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Every number in the app is monospaced and tabular so columns never jitter. */
+  .num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  /* Minimum 44px tap targets, gloves-on (BUILD_BRIEF §4). */
+  .tap {
+    min-height: 2.75rem;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-forge-500);
+    outline-offset: 2px;
+  }
+
+  /* Hide scrollbars on the sticky solution table without losing scrollability. */
+  .scroll-slim::-webkit-scrollbar {
+    height: 0.5rem;
+    width: 0.5rem;
+  }
+  .scroll-slim::-webkit-scrollbar-thumb {
+    background-color: var(--color-gunmetal-700);
+    border-radius: 9999px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
