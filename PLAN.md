@@ -1,0 +1,270 @@
+# Ballistic Forge — Pilot Build Plan
+
+Source spec: [`docs/BUILD_BRIEF.md`](docs/BUILD_BRIEF.md) (v3). Section numbers below (§) refer to it.
+
+**How to read this:** each phase is a checklist. Boxes get ticked as work lands. A phase is only
+closed when its **Gate** passes (`pnpm typecheck && pnpm lint && pnpm test` green) and it is committed
+as `phase-N: <summary>`. Decisions go in `DECISIONS.md`, blockers in `NEEDS_CHAD.md`.
+
+**Priority rule:** the engine is the product. If time runs short, cut UI scope — never engine tests.
+
+| Phase | Scope                                               | Depends on | Status |
+| ----- | --------------------------------------------------- | ---------- | ------ |
+| 0     | Monorepo scaffold, tooling, tracking docs           | —          | ☑      |
+| 1     | `@bf/engine` — physics, test-first                  | 0          | ☐      |
+| 2     | Web shell + calculator (guest mode, no env vars)    | 1          | ☐      |
+| 3     | Supabase schema, RLS, seed pipeline                 | 0          | ☐      |
+| 4     | Profiles, DOPE cards (PDF), Range mode              | 2, 3       | ☐      |
+| 5     | The Can — suppressor toggle + compatibility checker | 4          | ☐      |
+| 6     | The Field — session logging + aggregation           | 3, 4       | ☐      |
+| 7     | Library, auth polish, entitlements stub, onboarding | 3–6        | ☐      |
+| 8     | Hardening, E2E, a11y, Lighthouse, handoff           | all        | ☐      |
+
+---
+
+## Phase 0 — Scaffold & tooling
+
+- [x] pnpm workspace: root `package.json`, `pnpm-workspace.yaml` (`packages/*`, `apps/*`)
+- [x] Root scripts: `typecheck`, `lint`, `test`, `build`, `dev` fanned out across workspaces (+ `gate`, `format`)
+- [x] Shared `tsconfig.base.json` — `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`
+- [x] ESLint (flat config) + Prettier; engine bans `any`, DOM/Node globals, React/Node imports (verified)
+- [x] Vitest with v8 coverage (per-package config; engine thresholds 90% lines)
+- [x] `packages/engine` skeleton (zero runtime deps, ESM, exports TS source for web + React Native)
+- [x] `apps/web` placeholder (filled in Phase 2)
+- [x] `supabase/`, `scripts/` directories
+- [x] `.gitignore`, `.gitattributes`, `.nvmrc` / `engines` field, `.editorconfig`
+- [x] Create `DECISIONS.md`, `NEEDS_CHAD.md` (seed with known blockers below), `HANDOFF.md` stub
+- [x] GitHub Actions CI running the gate on push (inert until a GitHub remote exists)
+- [x] **Gate** → `phase-0: scaffold monorepo`
+
+## Phase 1 — The Engine (`@bf/engine`) §5
+
+Pure functions only — no React, DOM, or network. All internal math in SI.
+
+### 1.1 Units (`units.ts`) §5.1
+
+- [ ] Length: yd / m / ft / in / cm
+- [ ] Speed: fps / mps / mph / kph
+- [ ] Mass: gr / g / kg
+- [ ] Temperature: °F / °C / K
+- [ ] Pressure: inHg / hPa / mbar / psi / Pa
+- [ ] Energy: ft-lbf / J
+- [ ] Angles: true MOA (1/60°), IPHY (shooter's MOA, separate), MIL, radians
+- [ ] BC conversion constant 1 lb/in² = 703.0696 kg/m²
+- [ ] Branded/nominal types so units can't be mixed accidentally
+- [ ] Tests: round-trips for every unit pair
+
+### 1.2 Atmosphere (`atmosphere.ts`) §5.2
+
+- [ ] Inputs: temp, pressure **with explicit `station` | `baro` type**, altitude, RH
+- [ ] Baro → station pressure conversion using altitude
+- [ ] Humid air density (dry-air + vapor partial pressures); saturation vapor pressure via Arden Buck (log in DECISIONS)
+- [ ] Speed of sound (γ = 1.4, R = 287.05 J/kg·K)
+- [ ] Density altitude
+- [ ] Presets: ICAO standard; Army Standard Metro (documented)
+- [ ] Tests: standard conditions → standard density within 0.1%
+
+### 1.3 Drag (`dragTables.ts`) §5.3
+
+- [ ] Standard G1 and G7 Mach→Cd tables with source comment
+- [ ] Linear interpolation, clamped at ends
+- [ ] `DragModel` interface (so a CDM can plug in later)
+- [ ] Single BC and **velocity-banded BCs** (Sierra-style stepped G1)
+- [ ] Deceleration `a = (π/8)·ρ·v_rel²·Cd(M)/BC` opposite air-relative velocity
+- [ ] Tests: interpolation exact at table points, clamping, band selection
+
+### 1.4 Solver (`solver.ts`) §5.4
+
+- [ ] 3D state (downrange, vertical, lateral) + velocity, ground frame
+- [ ] Fixed-step RK4, default dt = 0.5 ms, configurable
+- [ ] Wind: speed + direction (clock or degrees) → vector; air-relative velocity = v − wind
+- [ ] Interface allows multi-zone wind later (pilot: single constant zone)
+- [ ] True incline: gravity vector rotated by inclination angle; cosine-rule comparison exposed for the advanced panel
+- [ ] Coriolis toggle (`coriolis.ts`): latitude + azimuth, Ω = 7.292115e-5 rad/s, as acceleration
+- [ ] Spin drift (`spinDrift.ts`): Miller Sg with temp/pressure correction; Litz drift vs TOF; disabled with reason if bullet length unknown
+- [ ] Aerodynamic jump: Litz approximation behind toggle, or clear TODO stub
+- [ ] Stop conditions: max range, velocity floor, time cap
+- [ ] Output rows at range step: range, drop, elevation (MOA/MIL/clicks), windage (linear/angular/clicks), velocity, Mach, energy, TOF, spin drift, Coriolis components, transonic flag (≤ 1.2 warn, ≤ 1.0 subsonic)
+- [ ] Energy computed both ways (gr·fps²/450,240 and SI) and asserted equal
+
+### 1.5 Zeroing (`zero.ts`) §5.5
+
+- [ ] Inputs: zero range, sight height, **zero atmosphere** (separate from current), zero offset
+- [ ] Launch-angle solve (bisection → secant), tolerance < 0.001 in
+- [ ] Outputs relative to LOS under current conditions
+
+### 1.6 Corrections & DOPE (`dope.ts`) §5.6
+
+- [ ] Turret click values: 0.1 MIL, 0.25 MOA, 1/8 MOA, custom; separate elev/wind
+- [ ] Rounding mode: nearest / down
+- [ ] Table generation helper (start/end/step) used by calculator, DOPE card, range mode
+
+### 1.7 Truing (`truing.ts`) §5.7
+
+- [ ] MV truing from observed elevation at distance D (secant)
+- [ ] BC scale-factor truing at long range; warnings for too-short distance / inconsistent inputs
+- [ ] Results returned as new values with date + conditions (never overwrite original)
+
+### 1.8 Suppressor & stats (`suppressor.ts`, `stats.ts`)
+
+- [ ] Apply MV delta + POI offset to a profile (pure, source-labelled)
+- [ ] mean, SD, ES, median, MAD (scaled), t-distribution 95% CI, outlier filter
+
+### 1.9 Validation
+
+- [ ] Zod (or hand-rolled, zero-dep) input validation with human messages ("Sight height of 25 in looks wrong — did you mean 2.5?") — log choice
+
+### 1.10 Required tests §5.8
+
+- [ ] Vacuum (Cd = 0) matches analytical parabola within 1e-6 relative
+- [ ] Zero: path crosses LOS at zero range within tolerance
+- [ ] Velocity strictly decreasing (still air, flat fire)
+- [ ] Step-size convergence: halving dt changes 1,000 yd drop < 0.05%
+- [ ] Unit round-trips
+- [ ] Standard atmosphere density within 0.1%
+- [ ] Wind symmetry: 3 o'clock vs 9 o'clock mirror image
+- [ ] Incline: uphill ≈ downhill, both < flat
+- [ ] Truing round-trip recovers MV within 1 fps
+- [ ] `test/fixtures/reference_cases.json` with documented schema, **empty**; harness skips when empty; target 0.1 MIL to 1,000 yd
+- [ ] Performance: 0–1,500 yd solve benchmark (budget < 50 ms on mid phone)
+- [ ] Coverage ≥ 90% lines
+- [ ] **Gate** → `phase-1: engine`
+
+## Phase 2 — Web shell + calculator §4, §6
+
+- [ ] Next.js (latest stable, App Router, TS strict) in `apps/web`, consuming `@bf/engine` via workspace
+- [ ] Tailwind + shadcn/ui; brand tokens: gunmetal scale (950→600 from `#1C1C2E`), amber `#C8860A`, muted status colors
+- [ ] Fonts: Inter (UI), JetBrains Mono / Source Code Pro with tabular numerals (data)
+- [ ] Placeholder SVG logo (anvil/crosshair + wordmark) — logged in NEEDS_CHAD
+- [ ] App shell: mobile-first nav, ≥ 44 px tap targets, dark default
+- [ ] Persistence abstraction: `LocalStore` (guest, localStorage) vs `SupabaseStore` — selected by env presence
+- [ ] Feature-flag + entitlement plumbing stubs (filled in Phase 3/7)
+- [ ] `/` landing: tagline, three pillars, "Join the beta" (Supabase `waitlist` or local log in demo mode); no fake stats
+- [ ] `/calc`:
+  - [ ] Collapsible groups: Bullet/Load, Rifle, Conditions
+  - [ ] Explicit station vs baro pressure selector with help text
+  - [ ] Opt-in "use my location" (coarse only, never stored at full precision)
+  - [ ] Sticky output table, configurable range start/end/step, transonic rows flagged
+  - [ ] Charts (Recharts): Drop, Velocity, Energy, Wind
+  - [ ] Compare mode: up to 3 loads overlaid
+  - [ ] Unverified-data badge wherever library data is unverified
+  - [ ] Solver in a Web Worker if main-thread solve exceeds budget
+  - [ ] Guest-mode prompt to create an account
+- [ ] Disclaimer on every solution (§13)
+- [ ] `/legal/terms`, `/legal/privacy`, `/legal/disclaimer` — DRAFT placeholders
+- [ ] PWA manifest + service worker; calculator works offline once loaded
+- [ ] Unit tests for form → engine input mapping
+- [ ] **Gate** → `phase-2: web shell + calculator`
+
+## Phase 3 — Data model & Supabase §7
+
+- [ ] `supabase/` initialized for Supabase CLI; migrations in `supabase/migrations`
+- [ ] Reference tables (public read, admin write): `manufacturers`, `cartridges`, `bullets`, `factory_loads`, `suppressors`, `mount_types` enum
+- [ ] User tables (owner-only RLS): `profiles`, `rifles` (**no serial number field**), `loads`, `rifle_suppressors`, `sessions`, `shot_strings`, `drop_observations`, `poi_shift_observations`, `entitlements`, `events`
+- [ ] Aggregate tables: `field_aggregates`, `suppressor_deltas` (read gated by flag / admin)
+- [ ] `app_flags` seeded: `field_data_public=false`, `field_reveal_threshold_shots=50000`, `min_sessions_to_display=5`, `min_users_to_display=3`
+- [ ] Also: `waitlist`, `feedback`, `corrections` (library suggestions), verification audit columns (`verified_by`, `verified_at`)
+- [ ] UUID PKs, `created_at/updated_at` triggers, soft deletes where noted
+- [ ] Generated TS types + typed client (server + browser)
+- [ ] Shared Zod schemas (forms + API) in a `packages/schemas` or `apps/web/lib/schemas`
+- [ ] Seed pipeline: `scripts/seed.ts` reads `supabase/seed/*.csv`, validates with Zod (diameter vs cartridge, G1 BC 0.05–1.2, sane weights), rejects rows without `source_url`
+- [ ] Seed CSVs from manufacturer public spec pages only:
+  - [ ] ~40 bullets (6.5 CM, .308, .223/5.56, 6mm CM, .300 WM, 300 PRC, 6.5 PRC, .224 Valk, .338 LM)
+  - [ ] ~30 factory loads (advertised MV + test barrel)
+  - [ ] ~15 suppressors (mount types, rated calibers)
+  - [ ] Unreachable/unconfirmable rows → `to_verify.csv` + NEEDS_CHAD (never guessed)
+- [ ] RLS test: user A cannot read user B's sessions (runs against local Supabase; skips without it)
+- [ ] **Gate** → `phase-3: supabase schema + seed`
+
+## Phase 4 — Profiles, DOPE cards, Range mode §8
+
+- [ ] `/rifles`, `/rifles/[id]`, `/loads/[id]` — Rifle → Loads → Suppressor hierarchy; duplicate + archive
+- [ ] Works in both guest (local) and signed-in (Supabase) stores
+- [ ] Temperature sensitivity: MV adjusted for current temp, adjustment displayed
+- [ ] Trued MV/BC saved on load with date + conditions; original preserved
+- [ ] `/dope/[loadId]` with `@react-pdf/renderer`:
+  - [ ] Header: rifle, load, bullet/BC, MV (+ trued), zero, sight height, clicks, atmosphere, date, suppressed label
+  - [ ] Table: range, elevation (unit + clicks), 5/10 mph full-value wind, velocity, energy, TOF; transonic shaded
+  - [ ] Formats: letter, half-page, scope-cap/wrist
+  - [ ] Suppressed + unsuppressed side-by-side option
+  - [ ] Footer: "Ballistic Forge — verify with live fire" + timestamp + disclaimer
+- [ ] `/range`: profile picker, ±25 yd stepper, wind clock + speed slider, suppressor toggle, giant readout, Screen Wake Lock
+- [ ] **Gate** → `phase-4: profiles, dope, range`
+
+## Phase 5 — The Can §9
+
+- [ ] Suppressor toggle with resolution order: **Your data** → **Field data (n=…)** (only if public + n ≥ threshold) → "No delta yet" CTA. Never a generic delta.
+- [ ] `/suppressors`, `/suppressors/[id]`: spec sheet, mount, rated cartridges, outbound links (manufacturer, PEW Science search), field deltas when public
+- [ ] `/suppressors/compatibility` checker (pure function in engine or shared lib, fully unit-tested):
+  - [ ] Bore vs bullet diameter / max rated cartridge
+  - [ ] Cartridge rated / unlisted-under-max (warn) / over max (fail)
+  - [ ] Thread pitch vs mount: direct / adapter needed (named) / incompatible
+  - [ ] Barrel-length note verbatim, else unknown
+  - [ ] Missing data → **unknown**, never pass (explicit test)
+  - [ ] Prominent disclaimer; short factual baffle-strike messaging
+- [ ] **Gate** → `phase-5: suppressor module`
+
+## Phase 6 — The Field §10
+
+- [ ] `/sessions/new` wizard: rifle/load/suppressor → chrono type → strings (paste/tap, suppressed flag, cold bore) → optional drops & POI shift → review (mean/SD/ES) → submit
+- [ ] Conditions pre-filled from last session
+- [ ] Drafts autosave locally; offline queue syncs when online
+- [ ] CSV import: Garmin Xero + LabRadar parsers if formats confirmable, plus generic column-mapping importer (log in DECISIONS)
+- [ ] `/sessions`, `/sessions/[id]` incl. excluded-with-reason visibility for owner
+- [ ] Aggregation (pure TS core, unit-tested, invoked by Edge Function / SQL on submit + nightly cron):
+  - [ ] Group key: bullet|factory_load × 1" barrel bucket × suppressor
+  - [ ] Session = one sample; per-user cap (default 3 sessions/group full weight)
+  - [ ] Temp normalization to 59 °F when sensitivity known, else `normalized=false`
+  - [ ] Plausibility gates (±20% advertised MV, chrono range, SD < 100) then MAD exclusion (3.5 × scaled MAD)
+  - [ ] Trust weighting v1 (chrono type, string length; flagged accounts excluded) — formula in DECISIONS
+  - [ ] t-based 95% CI; shown only when n_sessions ≥ min and n_users ≥ 3
+  - [ ] Suppressor deltas from same-session paired strings only
+  - [ ] Opted-out users excluded; deletion triggers recompute
+  - [ ] Stretch: fps-per-inch barrel curve behind admin flag
+- [ ] `/field`: personal history (MV over time, SD/ES trends, temp vs MV), "Your shots in the Field Database: N"; community view only when flag on
+- [ ] Calculator/library Field MV badge (flag-gated)
+- [ ] `/admin` (server-guarded): totals, progress to reveal threshold, flagged-session review queue, group drill-down, flag toggles, reference-data verify/edit
+- [ ] Rate limit on session submission
+- [ ] **Gate** → `phase-6: field data engine`
+
+## Phase 7 — Library, auth, entitlements, beta readiness §11
+
+- [ ] `/library`: search/filter by cartridge, weight, manufacturer, BC type; verified badges; "Use in calculator"; "Suggest a correction" → admin queue
+- [ ] Auth: magic link + Google OAuth (Supabase); guest → account migration of localStorage profiles
+- [ ] Entitlements: single Free vs Pro config file; all beta users = `founder`; `useEntitlement()` hook gating Pro candidates
+- [ ] Feedback button → `feedback` table (+ optional screenshot to Storage)
+- [ ] 3-step onboarding (units → rifle → load) ending on a real solution
+- [ ] Empty states everywhere with a clear next action
+- [ ] `/account`: units, contribution opt-in, data export (JSON + CSV), delete account
+- [ ] **Gate** → `phase-7: library, auth, entitlements`
+
+## Phase 8 — Hardening & handoff §12
+
+- [ ] Playwright smoke: guest calc solve; create account; rifle/load; DOPE PDF; log session; admin sees it; compatibility check
+- [ ] Accessibility: keyboard nav, labels on all inputs, AA contrast on dark theme
+- [ ] Lighthouse mobile ≥ 85 performance, PWA installable
+- [ ] Security review: RLS tests, admin guards, rate limits, no PII leakage in aggregates
+- [ ] `.env.example` fully documented; README (local Supabase, seeding, tests, Vercel deploy)
+- [ ] `HANDOFF.md`: done / stubbed / run / deploy / physics limitations / coverage / top 10 next tasks / SAAMI sound-standard note
+- [ ] Walk the §15 Definition of Done checklist and record results honestly
+- [ ] **Gate** → `phase-8: hardening + handoff`
+
+---
+
+## Known blockers for `NEEDS_CHAD.md` (seed in Phase 0)
+
+1. Supabase project URL + anon/service keys (app runs in demo mode until provided)
+2. Google OAuth client ID/secret
+3. Vercel project + BallisticsMD.com DNS
+4. Reference ballistic cases: run 5 loads through JBM + Hornady 4DOF, paste into `reference_cases.json`
+5. Verify any seed rows that land in `to_verify.csv`
+6. Final logo / brand assets (placeholder shipped)
+7. Attorney review of Terms, Privacy, Disclaimer
+8. Confirm Garmin Xero / LabRadar CSV export samples (real files from a session)
+
+## Hard lines (apply to every phase) §13
+
+- No reloading/powder data, no AI load advisor, no NFA/legal advice
+- No fabricated data: every seed row has `source_url` + `verified`
+- No serial numbers, no precise GPS
+- Disclaimer on every solution and DOPE card
