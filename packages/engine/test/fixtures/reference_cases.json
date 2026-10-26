@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "description": "External reference trajectories from established solvers (JBM, Hornady 4DOF). Intentionally empty until filled from real solver runs — never invent values. Schema: see README.md in this folder.",
+  "cases": []
+}

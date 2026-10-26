@@ -1,1 +1,19 @@
-export const ENGINE_VERSION = '0.0.0';
+export const ENGINE_VERSION = '0.1.0';
+
+export * from './atmosphere';
+export * from './constants';
+export * from './coriolis';
+export * from './dope';
+export * from './dragTables';
+export * from './load';
+export * from './solver';
+export * from './spinDrift';
+export * from './stats';
+export * from './suppressor';
+export * from './truing';
+export * from './units';
+export * from './validation';
+export * from './wind';
+export { ZERO_TOLERANCE_M, ZeroUnreachableError, solveZeroAngle, type ZeroProblem } from './zero';
+export type { Termination, TerminationReason } from './integrator';
+export type { Vec3 } from './vec';

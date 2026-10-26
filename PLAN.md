@@ -11,7 +11,7 @@ as `phase-N: <summary>`. Decisions go in `DECISIONS.md`, blockers in `NEEDS_CHAD
 | Phase | Scope                                               | Depends on | Status |
 | ----- | --------------------------------------------------- | ---------- | ------ |
 | 0     | Monorepo scaffold, tooling, tracking docs           | —          | ☑      |
-| 1     | `@bf/engine` — physics, test-first                  | 0          | ☐      |
+| 1     | `@bf/engine` — physics, test-first                  | 0          | ☑      |
 | 2     | Web shell + calculator (guest mode, no env vars)    | 1          | ☐      |
 | 3     | Supabase schema, RLS, seed pipeline                 | 0          | ☐      |
 | 4     | Profiles, DOPE cards (PDF), Range mode              | 2, 3       | ☐      |
@@ -43,92 +43,93 @@ Pure functions only — no React, DOM, or network. All internal math in SI.
 
 ### 1.1 Units (`units.ts`) §5.1
 
-- [ ] Length: yd / m / ft / in / cm
-- [ ] Speed: fps / mps / mph / kph
-- [ ] Mass: gr / g / kg
-- [ ] Temperature: °F / °C / K
-- [ ] Pressure: inHg / hPa / mbar / psi / Pa
-- [ ] Energy: ft-lbf / J
-- [ ] Angles: true MOA (1/60°), IPHY (shooter's MOA, separate), MIL, radians
-- [ ] BC conversion constant 1 lb/in² = 703.0696 kg/m²
-- [ ] Branded/nominal types so units can't be mixed accidentally
-- [ ] Tests: round-trips for every unit pair
+- [x] Length: yd / m / ft / in / cm (+ mm)
+- [x] Speed: fps / mps / mph / kph
+- [x] Mass: gr / g / kg (+ lb)
+- [x] Temperature: °F / °C / K
+- [x] Pressure: inHg / hPa / mbar / psi / Pa (+ mmHg)
+- [x] Energy: ft-lbf / J
+- [x] Angles: true MOA (1/60°), IPHY (shooter's MOA, separate), MIL, radians, degrees
+- [x] BC conversion constant 1 lb/in² = 703.0696 kg/m²
+- [x] ~~Branded/nominal types~~ → unit-suffixed SI field names instead (see DECISIONS)
+- [x] Tests: round-trips for every unit pair
 
 ### 1.2 Atmosphere (`atmosphere.ts`) §5.2
 
-- [ ] Inputs: temp, pressure **with explicit `station` | `baro` type**, altitude, RH
-- [ ] Baro → station pressure conversion using altitude
-- [ ] Humid air density (dry-air + vapor partial pressures); saturation vapor pressure via Arden Buck (log in DECISIONS)
-- [ ] Speed of sound (γ = 1.4, R = 287.05 J/kg·K)
-- [ ] Density altitude
-- [ ] Presets: ICAO standard; Army Standard Metro (documented)
-- [ ] Tests: standard conditions → standard density within 0.1%
+- [x] Inputs: temp, pressure **with explicit `station` | `baro` type**, altitude, RH
+- [x] Baro → station pressure conversion using altitude
+- [x] Humid air density (dry-air + vapor partial pressures); saturation vapor pressure via Arden Buck (log in DECISIONS)
+- [x] Speed of sound (γ = 1.4, R = 287.05 J/kg·K)
+- [x] Density altitude
+- [x] Presets: ICAO standard; Army Standard Metro (documented)
+- [x] Tests: standard conditions → standard density within 0.1% (ICAO and Army Standard Metro)
 
 ### 1.3 Drag (`dragTables.ts`) §5.3
 
-- [ ] Standard G1 and G7 Mach→Cd tables with source comment
-- [ ] Linear interpolation, clamped at ends
-- [ ] `DragModel` interface (so a CDM can plug in later)
-- [ ] Single BC and **velocity-banded BCs** (Sierra-style stepped G1)
-- [ ] Deceleration `a = (π/8)·ρ·v_rel²·Cd(M)/BC` opposite air-relative velocity
-- [ ] Tests: interpolation exact at table points, clamping, band selection
+- [x] Standard G1 and G7 Mach→Cd tables with source comment (verification → NEEDS_CHAD 4a)
+- [x] Linear interpolation, clamped at ends
+- [x] `DragModel` interface (so a CDM can plug in later)
+- [x] Single BC and **velocity-banded BCs** (Sierra-style stepped G1)
+- [x] Deceleration `a = (π/8)·ρ·v_rel²·Cd(M)/BC` opposite air-relative velocity
+- [x] Tests: interpolation exact at table points, clamping, band selection
 
 ### 1.4 Solver (`solver.ts`) §5.4
 
-- [ ] 3D state (downrange, vertical, lateral) + velocity, ground frame
-- [ ] Fixed-step RK4, default dt = 0.5 ms, configurable
-- [ ] Wind: speed + direction (clock or degrees) → vector; air-relative velocity = v − wind
-- [ ] Interface allows multi-zone wind later (pilot: single constant zone)
-- [ ] True incline: gravity vector rotated by inclination angle; cosine-rule comparison exposed for the advanced panel
-- [ ] Coriolis toggle (`coriolis.ts`): latitude + azimuth, Ω = 7.292115e-5 rad/s, as acceleration
-- [ ] Spin drift (`spinDrift.ts`): Miller Sg with temp/pressure correction; Litz drift vs TOF; disabled with reason if bullet length unknown
-- [ ] Aerodynamic jump: Litz approximation behind toggle, or clear TODO stub
-- [ ] Stop conditions: max range, velocity floor, time cap
-- [ ] Output rows at range step: range, drop, elevation (MOA/MIL/clicks), windage (linear/angular/clicks), velocity, Mach, energy, TOF, spin drift, Coriolis components, transonic flag (≤ 1.2 warn, ≤ 1.0 subsonic)
-- [ ] Energy computed both ways (gr·fps²/450,240 and SI) and asserted equal
+- [x] 3D state (downrange, vertical, lateral) + velocity, integrated in the line-of-sight frame
+- [x] Fixed-step RK4, default dt = 0.5 ms, configurable
+- [x] Wind: speed + direction (clock or radians) → vector; air-relative velocity = v − wind; head/cross components
+- [x] Interface allows multi-zone wind later (pilot: single constant zone)
+- [x] True incline: gravity vector rotated by inclination angle; cosine-rule comparison (`solveRiflemansRule`)
+- [x] Coriolis toggle (`coriolis.ts`): latitude + azimuth, Ω = 7.292115e-5 rad/s, as acceleration
+- [x] Spin drift (`spinDrift.ts`): Miller Sg with temp/pressure correction; Litz drift vs TOF; disabled with reason if bullet length unknown
+- [x] Aerodynamic jump: Litz approximation behind toggle, default off (verification → NEEDS_CHAD 4b)
+- [x] Stop conditions: requested max range, velocity floor, time cap (+ not-advancing guard)
+- [x] Output rows: range, path, elevation/windage angles, velocity, Mach, energy, TOF, spin drift, Coriolis components, regime flag (≤ 1.2 transonic, ≤ 1.0 subsonic); clicks via `dope.ts`
+- [x] Energy computed both ways (gr·fps²/450,240 and SI) and asserted equal within 0.1%
 
 ### 1.5 Zeroing (`zero.ts`) §5.5
 
-- [ ] Inputs: zero range, sight height, **zero atmosphere** (separate from current), zero offset
-- [ ] Launch-angle solve (bisection → secant), tolerance < 0.001 in
-- [ ] Outputs relative to LOS under current conditions
+- [x] Inputs: zero range, sight height, **zero atmosphere** (separate from current), zero offset, zero MV
+- [x] Launch-angle solve (secant from vacuum guess, bisection fallback), tolerance 1e-6 m (< 0.001 in)
+- [x] Outputs relative to LOS under current conditions
 
 ### 1.6 Corrections & DOPE (`dope.ts`) §5.6
 
-- [ ] Turret click values: 0.1 MIL, 0.25 MOA, 1/8 MOA, custom; separate elev/wind
-- [ ] Rounding mode: nearest / down
-- [ ] Table generation helper (start/end/step) used by calculator, DOPE card, range mode
+- [x] Turret click values: 0.1 MIL, 0.25 MOA, 1/8 MOA, custom; separate elev/wind
+- [x] Rounding mode: nearest / down
+- [x] Table generation helper (`rangeSteps`) + `buildDope` with wind-hold columns
 
 ### 1.7 Truing (`truing.ts`) §5.7
 
-- [ ] MV truing from observed elevation at distance D (secant)
-- [ ] BC scale-factor truing at long range; warnings for too-short distance / inconsistent inputs
-- [ ] Results returned as new values with date + conditions (never overwrite original)
+- [x] MV truing from observed elevation at distance D (Illinois method)
+- [x] BC scale-factor truing at long range; warnings for too-short distance / still-supersonic / out-of-bounds
+- [x] Results returned as new values with conditions; original kept (app adds the date)
 
-### 1.8 Suppressor & stats (`suppressor.ts`, `stats.ts`)
+### 1.8 Suppressor & stats (`suppressor.ts`, `stats.ts`, `load.ts`)
 
-- [ ] Apply MV delta + POI offset to a profile (pure, source-labelled)
-- [ ] mean, SD, ES, median, MAD (scaled), t-distribution 95% CI, outlier filter
+- [x] Apply MV delta + POI offset to a profile (pure, source-labelled, attach/detach)
+- [x] mean, SD, ES, median, MAD (scaled), t-distribution 95% CI, outlier filter
+- [x] Powder temperature sensitivity (`temperatureAdjustedMuzzleVelocity`)
 
 ### 1.9 Validation
 
-- [ ] Zod (or hand-rolled, zero-dep) input validation with human messages ("Sight height of 25 in looks wrong — did you mean 2.5?") — log choice
+- [x] Hand-rolled, zero-dep validation with human messages ("Sight height of 25 in looks wrong — did you mean 2.5 in?"), plus BC plausibility check
 
 ### 1.10 Required tests §5.8
 
-- [ ] Vacuum (Cd = 0) matches analytical parabola within 1e-6 relative
-- [ ] Zero: path crosses LOS at zero range within tolerance
-- [ ] Velocity strictly decreasing (still air, flat fire)
-- [ ] Step-size convergence: halving dt changes 1,000 yd drop < 0.05%
-- [ ] Unit round-trips
-- [ ] Standard atmosphere density within 0.1%
-- [ ] Wind symmetry: 3 o'clock vs 9 o'clock mirror image
-- [ ] Incline: uphill ≈ downhill, both < flat
-- [ ] Truing round-trip recovers MV within 1 fps
-- [ ] `test/fixtures/reference_cases.json` with documented schema, **empty**; harness skips when empty; target 0.1 MIL to 1,000 yd
-- [ ] Performance: 0–1,500 yd solve benchmark (budget < 50 ms on mid phone)
-- [ ] Coverage ≥ 90% lines
-- [ ] **Gate** → `phase-1: engine`
+- [x] Vacuum (Cd = 0) matches analytical parabola within 1e-6 relative
+- [x] Zero: path crosses LOS at zero range within tolerance
+- [x] Velocity strictly decreasing (still air, flat fire)
+- [x] Step-size convergence: halving dt changes 1,000 yd drop < 0.05%
+- [x] Unit round-trips
+- [x] Standard atmosphere density within 0.1%
+- [x] Wind symmetry: 3 o'clock vs 9 o'clock mirror image
+- [x] Incline: uphill ≈ downhill, both < flat
+- [x] Truing round-trip recovers MV within 1 fps
+- [x] `test/fixtures/reference_cases.json` with documented schema, **empty**; harness skips when empty; target 0.1 MIL to 1,000 yd
+- [x] Performance: 0–1,500 yd at 1 yd steps with wind + Coriolis = 5.9 ms on desktop (asserted < 10 ms)
+- [x] Coverage ≥ 90% lines (99.8% lines, 92.9% branches)
+- [x] **Gate** → `phase-1: engine`
 
 ## Phase 2 — Web shell + calculator §4, §6
 

@@ -31,6 +31,24 @@ built to work around every item here (demo mode, mocks, flags) until it's resolv
   .223 77 SMK) through JBM Ballistics and Hornady 4DOF at stated conditions. Paste inputs + outputs into
   `packages/engine/test/fixtures/reference_cases.json` (schema arrives in Phase 1).
 
+### 4a. Verify the G1/G7 drag tables (15 minutes)
+
+- **Why:** `packages/engine/src/dragTables.ts` holds the standard G1 and G7 Mach→Cd tables. They
+  were transcribed during the build, not copied from a downloaded file. A single wrong digit would
+  bias every solution.
+- **Steps:** download JBM's drag function files
+  (https://www.jbmballistics.com/ballistics/downloads/downloads.shtml) or open py-ballisticcalc's
+  `drag_tables.py` on GitHub, and compare every row. Fix any mismatch and run `pnpm test`. The
+  reference cases (item 4) will also catch table errors.
+
+### 4b. Verify the aerodynamic jump formula before turning it on
+
+- **Why:** aerodynamic jump is implemented (Litz: `0.01·Sg − 0.0024·L + 0.032` MOA per mph of
+  crosswind; RH twist + wind from the right → impact up) but **off by default**. The coefficients
+  and sign were written from memory of _Applied Ballistics for Long Range Shooting_.
+- **Steps:** check the formula and sign against the book (chapter on aerodynamic jump). If correct,
+  note it here; if not, fix `litzAerodynamicJumpRad` in `spinDrift.ts`.
+
 ### 5. Logo and brand assets
 
 - **Why:** a placeholder SVG anvil/crosshair mark ships in Phase 2.
