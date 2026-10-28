@@ -14,7 +14,7 @@ as `phase-N: <summary>`. Decisions go in `DECISIONS.md`, blockers in `NEEDS_CHAD
 | 1     | `@bf/engine` — physics, test-first                  | 0          | ☑      |
 | 2     | Web shell + calculator (guest mode, no env vars)    | 1          | ☑      |
 | 3     | Supabase schema, RLS, seed pipeline                 | 0          | ☑      |
-| 4     | Profiles, DOPE cards (PDF), Range mode              | 2, 3       | ☐      |
+| 4     | Profiles, DOPE cards (PDF), Range mode              | 2, 3       | ☑      |
 | 5     | The Can — suppressor toggle + compatibility checker | 4          | ☐      |
 | 6     | The Field — session logging + aggregation           | 3, 4       | ☐      |
 | 7     | Library, auth polish, entitlements stub, onboarding | 3–6        | ☐      |
@@ -179,18 +179,22 @@ Pure functions only — no React, DOM, or network. All internal math in SI.
 
 ## Phase 4 — Profiles, DOPE cards, Range mode §8
 
-- [ ] `/rifles`, `/rifles/[id]`, `/loads/[id]` — Rifle → Loads → Suppressor hierarchy; duplicate + archive
-- [ ] Works in both guest (local) and signed-in (Supabase) stores
-- [ ] Temperature sensitivity: MV adjusted for current temp, adjustment displayed
-- [ ] Trued MV/BC saved on load with date + conditions; original preserved
-- [ ] `/dope/[loadId]` with `@react-pdf/renderer`:
-  - [ ] Header: rifle, load, bullet/BC, MV (+ trued), zero, sight height, clicks, atmosphere, date, suppressed label
-  - [ ] Table: range, elevation (unit + clicks), 5/10 mph full-value wind, velocity, energy, TOF; transonic shaded
-  - [ ] Formats: letter, half-page, scope-cap/wrist
-  - [ ] Suppressed + unsuppressed side-by-side option
-  - [ ] Footer: "Ballistic Forge — verify with live fire" + timestamp + disclaimer
-- [ ] `/range`: profile picker, ±25 yd stepper, wind clock + speed slider, suppressor toggle, giant readout, Screen Wake Lock
-- [ ] **Gate** → `phase-4: profiles, dope, range`
+- [x] `/rifles`, `/rifles/[id]`, `/loads/[id]` — Rifle → Loads hierarchy; duplicate, archive and delete
+- [x] Works against the store interface, so guest (local) today and Supabase later with no call-site changes
+- [x] Temperature sensitivity: muzzle velocity adjusted for the current temperature, with the adjustment shown rather than applied silently
+- [x] Trued MV/BC saved on the load with the date and distance; the entered values are preserved and restorable
+- [x] Truing UI driven by the engine's Illinois-method solver, surfacing its distance and transonic warnings
+- [x] `/dope/[loadId]` with `@react-pdf/renderer`:
+  - [x] Header: rifle, load, bullet/BC, MV (+ trued and temperature notes), zero, sight height, clicks, atmosphere, suppressed label
+  - [x] Table: range, elevation (unit + clicks), configurable full-value wind columns, velocity, energy, TOF; transonic and subsonic rows shaded
+  - [x] Formats: letter, half-page, scope-cap/wrist
+  - [ ] Suppressed + unsuppressed side-by-side — deferred to Phase 5, which owns the suppressor data
+  - [x] Footer: "Ballistic Forge — verify with live fire" + timestamp + disclaimer
+  - [x] Tests render real PDF bytes in all three formats, not just the builder output
+- [x] `/range`: profile picker, ±25 yd stepper (plus ±5 fine), wind clock + speed sliders, giant readout, Screen Wake Lock
+  - [x] Suppressor toggle present but honest: says there is no measured delta until The Can lands
+- [x] `/calc?load=<id>` opens a saved profile, keeping the conditions already on screen
+- [x] **Gate** → `phase-4: profiles, dope, range`
 
 ## Phase 5 — The Can §9
 

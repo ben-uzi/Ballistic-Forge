@@ -1,6 +1,7 @@
 'use client';
 
 import { RotateCcw } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import {
   useCallback,
   useDeferredValue,
@@ -28,12 +29,16 @@ import { byField, unmapped } from '@/lib/calc/issues';
 import { runCalc } from '@/lib/calc/solve';
 import type { CalcForm, CompareLoad, FormUnits } from '@/lib/calc/types';
 import { compareLoadWithUnits, withUnits } from '@/lib/calc/units';
+import { formFromProfile } from '@/lib/profiles/to-form';
+import { getStore } from '@/lib/store';
 
 const FORM_KEY = 'bf.calcForm.v1';
 
 export function Calculator(): ReactElement {
   const [form, setForm] = useState<CalcForm>(DEFAULT_FORM);
   const [compareLoads, setCompareLoads] = useState<readonly CompareLoad[]>([]);
+  const [loadedProfile, setLoadedProfile] = useState<string | null>(null);
+  const requestedLoadId = useSearchParams().get('load');
 
   // Restore after mount so the server and first client render agree.
   useEffect(() => {
@@ -58,6 +63,25 @@ export function Calculator(): ReactElement {
       // Private mode or quota: the session still works.
     }
   }, [form]);
+
+  // `/calc?load=<id>` opens a saved profile. The conditions and output range
+  // already on screen are kept; only the rifle and load change.
+  useEffect(() => {
+    if (requestedLoadId === null) return;
+    let cancelled = false;
+    void (async () => {
+      const store = getStore();
+      const load = await store.getLoad(requestedLoadId);
+      if (load === null) return;
+      const rifle = await store.getRifle(load.rifleId);
+      if (rifle === null || cancelled) return;
+      setForm((current) => formFromProfile(rifle, load, current));
+      setLoadedProfile(`${rifle.name} · ${load.name}`);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [requestedLoadId]);
 
   const set = useCallback(<K extends keyof CalcForm>(key: K, value: CalcForm[K]): void => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -146,6 +170,12 @@ export function Calculator(): ReactElement {
           </Button>
         </div>
       </header>
+
+      {loadedProfile === null ? null : (
+        <p className="rounded-card border border-forge-600/40 bg-forge-500/5 px-4 py-2 text-sm text-ink-300">
+          Loaded <span className="num font-semibold text-forge-500">{loadedProfile}</span>
+        </p>
+      )}
 
       <GuestPrompt />
 

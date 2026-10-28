@@ -163,3 +163,20 @@ One line each: **decision** — reason — how to reverse.
 - **Hand-rolled CSV reader instead of a dependency** — one consumer, a fixed dialect, and the behaviour that matters (quoted commas, escaped quotes, embedded newlines) is sixty lines and directly tested — n/a.
 - **Seed CLI runs on Node's native type stripping, so `packages/db` sets `allowImportingTsExtensions` and `erasableSyntaxOnly`** — avoids adding `tsx` (whose esbuild postinstall pnpm's supply-chain policy blocks), and the compiler now rejects the non-erasable syntax that would break it — add a runner dependency if the CLI grows.
 - **Only 29 bullets and 1 factory load are seeded, and 0 suppressors** — every value was transcribed from the manufacturer's own published page (Hornady's BC table, Berger's bullet reference chart, Hornady's ammunition page). Suppressor manufacturer sites return 403/404 to automated requests, so nothing was seeded rather than guessed — see NEEDS_CHAD 8 and 9.
+
+## Phase 4 — Profiles, DOPE cards, Range mode
+
+- **Profiles are stored in US customary units and converted at the boundary (`formFromProfile`)** — what the user typed round-trips exactly, and there is one tested seam between stored data and the calculator — n/a.
+- **The effective muzzle velocity is resolved in one place and reports its working** — a trued value beats the entered one, then powder temperature sensitivity is applied, and the UI shows each step. A solver that silently changes the number you typed is worse than one that explains itself — `effectiveMuzzleVelocity` in `lib/profiles/to-form.ts`.
+- **Truing never overwrites the entered MV or BC** — the trued figure is stored beside it with the date and distance, and can be cleared. Truing from one group carries that group's error, so the original has to survive — n/a.
+- **Archive is a flag; delete is a separate, confirmed action** — archiving a rifle should not destroy its loads, but an explicit delete should mean it — n/a.
+- **`/calc?load=<id>` keeps the conditions already on screen** — loading a profile changes the rifle and load, not the weather you just entered — n/a.
+- **DOPE card content is resolved to strings in `lib/dope/build.ts`, away from the PDF components** — the numbers are then testable without rendering a document, and the preview table and the PDF cannot disagree — n/a.
+- **The printed card is black on white, with transonic rows shaded rather than coloured** — it is the one surface that leaves the screen, and it has to survive a photocopier, a wet range bag and direct sun — n/a.
+- **Three formats differ by column set as well as page size** — a scope-cap band that tried to carry energy and time of flight would be unreadable — edit `DOPE_FORMATS`.
+- **PDF tests render real bytes with `renderToBuffer` in all three formats** — the builder passing says nothing about whether the document renders; this catches a broken layout or a bad style — n/a.
+- **`@react-pdf/renderer` is loaded with `next/dynamic` and `ssr: false`** — it touches browser APIs at import time and would break prerendering — n/a.
+- **`@vitejs/plugin-react` added for the test runner** — the app's tsconfig sets `jsx: preserve` so Next owns the transform; Vite 8 honours that and leaves JSX in place, so tests importing a `.tsx` module need their own transform — n/a.
+- **Range mode reads its conditions from the calculator's saved form** — one place to enter the weather, and the range screen stays a readout rather than a second data-entry surface — n/a.
+- **Screen Wake Lock is reacquired on `visibilitychange`** — browsers drop the lock when the tab is backgrounded, and a display that sleeps between shots is the whole problem it solves — n/a.
+- **Range mode's suppressor toggle states that no delta is recorded instead of offering a generic one** — the brief's resolution order ends at "No delta yet", never at an invented number. It is wired for real in Phase 5 — n/a.

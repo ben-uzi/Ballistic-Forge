@@ -8,7 +8,9 @@ _Running draft. Written in full at the end of Phase 8 (see `docs/BUILD_BRIEF.md`
 - Phase 1 (engine) — complete. 143 tests; 99.8% line / 92.9% branch coverage.
 - Phase 2 (web shell + calculator) — complete. 71 further tests.
 - Phase 3 (Supabase schema, RLS, seed pipeline) — complete. 72 further tests, run against a real
-  Postgres. Seed data is partial on purpose: see NEEDS_CHAD 8-10. See `PLAN.md`.
+  Postgres. Seed data is partial on purpose: see NEEDS_CHAD 8-10.
+- Phase 4 (profiles, DOPE cards, range mode) — complete. 41 further tests, including PDFs rendered
+  to real bytes. See `PLAN.md`.
 
 ## Running it
 
@@ -32,6 +34,11 @@ stored in the browser, and there are no accounts. `apps/web/.env.example` docume
 - `/calc` — the solver: bullet/load, rifle and conditions groups; sticky solution table with
   transonic flagging; Drop / Velocity / Energy / Drift charts; compare up to three loads; US and
   metric units throughout; inline validation; works offline once loaded.
+- `/rifles`, `/rifles/[id]`, `/loads/[id]` — rifle and load profiles with duplicate, archive and
+  delete; powder-temperature correction and truing, both of which show their working and never
+  overwrite what you entered.
+- `/dope/[loadId]` — DOPE card as a real PDF in three formats (letter, half page, scope cap).
+- `/range` — one distance, huge numbers, wind sliders, screen stays awake.
 - `/legal/*` — DRAFT terms, privacy and disclaimer.
 
 Everything else in the navigation is shown as "soon" and is not yet built.
