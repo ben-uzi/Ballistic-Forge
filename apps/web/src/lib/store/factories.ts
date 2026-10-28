@@ -1,5 +1,11 @@
 import { DEFAULT_FORM } from '@/lib/calc/defaults';
-import type { StoredBullet, StoredLoad, StoredRifle } from './types';
+import type {
+  StoredBullet,
+  StoredLoad,
+  StoredRifle,
+  StoredSuppressor,
+  StoredSuppressorSetup,
+} from './types';
 
 /**
  * Constructors for new profile records.
@@ -71,6 +77,45 @@ export function newLoad(
     bullet: newBullet(),
     muzzleVelocityFps: DEFAULT_FORM.muzzleVelocity,
     muzzleVelocitySource: 'advertised',
+    createdAt: at,
+    updatedAt: at,
+    ...overrides,
+  };
+}
+
+export function newSuppressor(
+  overrides: Partial<Omit<StoredSuppressor, 'id' | 'createdAt' | 'updatedAt'>> = {},
+  clock: Clock = systemClock,
+): StoredSuppressor {
+  const at = clock.now();
+  return {
+    id: clock.id(),
+    name: 'New suppressor',
+    // Everything the manufacturer has not told us stays absent: the
+    // compatibility checker answers "unknown" from a missing value and would
+    // answer "pass" from a guessed one.
+    mountType: 'direct_thread',
+    ratedCartridges: [],
+    verified: false,
+    createdAt: at,
+    updatedAt: at,
+    ...overrides,
+  };
+}
+
+export function newSuppressorSetup(
+  rifleId: string,
+  suppressorId: string,
+  overrides: Partial<
+    Omit<StoredSuppressorSetup, 'id' | 'rifleId' | 'suppressorId' | 'createdAt' | 'updatedAt'>
+  > = {},
+  clock: Clock = systemClock,
+): StoredSuppressorSetup {
+  const at = clock.now();
+  return {
+    id: clock.id(),
+    rifleId,
+    suppressorId,
     createdAt: at,
     updatedAt: at,
     ...overrides,

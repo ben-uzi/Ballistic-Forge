@@ -8,6 +8,7 @@ import {
   type Atmosphere,
   type Correction,
   type FlightRegime,
+  type SolveInput,
   type SolveWarning,
   type Termination,
   type ValidationIssue,
@@ -83,11 +84,19 @@ export function issuesFor(form: CalcForm, override?: CompareLoad): ValidationIss
  * rows, so even three compared loads stay far inside the 50 ms budget
  * (BUILD_BRIEF §6.2). See DECISIONS.md for the worker trade-off.
  */
-export function runCalc(form: CalcForm, override?: CompareLoad): CalcOutcome {
+/** Last-mile adjustment to the solve input, e.g. attaching a suppressor. */
+export type InputTransform = (input: SolveInput) => SolveInput;
+
+export function runCalc(
+  form: CalcForm,
+  override?: CompareLoad,
+  transform?: InputTransform,
+): CalcOutcome {
   const issues = issuesFor(form, override);
   if (issues.some((i) => i.severity === 'error')) return { ok: false, issues };
 
-  const input = toSolveInput(form, override);
+  const built = toSolveInput(form, override);
+  const input = transform === undefined ? built : transform(built);
   const elevationClick = clickValue(form.elevationClickKey);
   const windageClick = clickValue(form.windageClickKey);
   const unit = form.units.angular;

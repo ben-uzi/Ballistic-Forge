@@ -14,7 +14,7 @@ export interface NavItem {
 export const NAV_ITEMS: readonly NavItem[] = [
   { href: '/calc', label: 'The Lab', ready: true },
   { href: '/range', label: 'Range', ready: true },
-  { href: '/suppressors', label: 'The Can', ready: false },
+  { href: '/suppressors', label: 'The Can', ready: true },
   { href: '/field', label: 'The Field', ready: false },
   { href: '/library', label: 'Library', ready: false },
   { href: '/rifles', label: 'Rifles', ready: true },

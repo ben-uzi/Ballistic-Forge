@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { getStore } from './index';
-import type { StoredLoad, StoredRifle } from './types';
+import type { StoredLoad, StoredRifle, StoredSuppressor, StoredSuppressorSetup } from './types';
 
 /**
  * React access to the profile store.
@@ -60,6 +60,22 @@ export function useLoads(rifleId?: string): Query<StoredLoad[]> {
 
 export function useLoad(id: string | null): Query<StoredLoad | null> {
   return useQuery(() => (id === null ? Promise.resolve(null) : getStore().getLoad(id)), null, [id]);
+}
+
+export function useSuppressors(): Query<StoredSuppressor[]> {
+  return useQuery(() => getStore().listSuppressors(), [], []);
+}
+
+export function useSuppressor(id: string | null): Query<StoredSuppressor | null> {
+  return useQuery(
+    () => (id === null ? Promise.resolve(null) : getStore().getSuppressor(id)),
+    null,
+    [id],
+  );
+}
+
+export function useSuppressorSetups(rifleId?: string): Query<StoredSuppressorSetup[]> {
+  return useQuery(() => getStore().listSuppressorSetups(rifleId), [], [rifleId]);
 }
 
 /** A load together with the rifle it belongs to — what DOPE and range mode need. */

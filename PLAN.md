@@ -15,7 +15,7 @@ as `phase-N: <summary>`. Decisions go in `DECISIONS.md`, blockers in `NEEDS_CHAD
 | 2     | Web shell + calculator (guest mode, no env vars)    | 1          | ☑      |
 | 3     | Supabase schema, RLS, seed pipeline                 | 0          | ☑      |
 | 4     | Profiles, DOPE cards (PDF), Range mode              | 2, 3       | ☑      |
-| 5     | The Can — suppressor toggle + compatibility checker | 4          | ☐      |
+| 5     | The Can — suppressor toggle + compatibility checker | 4          | ☑      |
 | 6     | The Field — session logging + aggregation           | 3, 4       | ☐      |
 | 7     | Library, auth polish, entitlements stub, onboarding | 3–6        | ☐      |
 | 8     | Hardening, E2E, a11y, Lighthouse, handoff           | all        | ☐      |
@@ -198,16 +198,18 @@ Pure functions only — no React, DOM, or network. All internal math in SI.
 
 ## Phase 5 — The Can §9
 
-- [ ] Suppressor toggle with resolution order: **Your data** → **Field data (n=…)** (only if public + n ≥ threshold) → "No delta yet" CTA. Never a generic delta.
-- [ ] `/suppressors`, `/suppressors/[id]`: spec sheet, mount, rated cartridges, outbound links (manufacturer, PEW Science search), field deltas when public
-- [ ] `/suppressors/compatibility` checker (pure function in engine or shared lib, fully unit-tested):
-  - [ ] Bore vs bullet diameter / max rated cartridge
-  - [ ] Cartridge rated / unlisted-under-max (warn) / over max (fail)
-  - [ ] Thread pitch vs mount: direct / adapter needed (named) / incompatible
-  - [ ] Barrel-length note verbatim, else unknown
-  - [ ] Missing data → **unknown**, never pass (explicit test)
-  - [ ] Prominent disclaimer; short factual baffle-strike messaging
-- [ ] **Gate** → `phase-5: suppressor module`
+- [x] Suppressor toggle with resolution order: **Your data** → **Field data (n=…)** (only if public + n ≥ threshold) → "No delta yet" CTA. Never a generic delta — `lib/suppressors/resolve.ts`, fully unit-tested
+- [x] `/suppressors`, `/suppressors/[id]`: spec sheet, mount, rated cartridges, verbatim barrel-length restriction, outbound links (manufacturer, PEW Science search)
+- [x] Per-rifle measured velocity delta and POI shift recorded on the suppressor page
+- [x] `/suppressors/compatibility` checker — pure function in the engine (`suppressorFit.ts`), 44 unit tests:
+  - [x] Bore vs bullet diameter, with a tight-clearance warning rather than a false pass
+  - [x] Cartridge rated / unlisted-under-max (warn) / larger calibre than max (fail)
+  - [x] Thread pitch vs mount: direct / adapter needed (named) / incompatible
+  - [x] Barrel-length note verbatim, else unknown — never parsed
+  - [x] Missing data → **unknown**, never pass (eight explicit tests, one per missing field)
+  - [x] Prominent disclaimer; short, factual baffle-strike messaging
+- [x] Range mode's suppressor toggle wired to the real resolution order
+- [x] **Gate** → `phase-5: suppressor module`
 
 ## Phase 6 — The Field §10
 

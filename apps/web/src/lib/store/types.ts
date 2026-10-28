@@ -60,6 +60,8 @@ export interface StoredRifle {
   readonly barrelLengthIn?: number;
   readonly twistIn?: number;
   readonly twistDirection: TwistDirection;
+  /** Muzzle thread, for the suppressor compatibility checker. */
+  readonly threadPitch?: string;
   readonly sightHeightIn: number;
   readonly zeroRangeYd: number;
   readonly angularUnit: AngularUnit;
@@ -70,6 +72,53 @@ export interface StoredRifle {
   readonly createdAt: string;
   readonly updatedAt: string;
   readonly archived?: boolean;
+}
+
+export type MountType =
+  'direct_thread' | 'hub_1375x24' | 'asr' | 'keymo' | 'omega_qd' | 'proprietary_qd' | 'other';
+
+/**
+ * A suppressor the user owns or is considering. Fields the manufacturer does
+ * not publish stay undefined, because the compatibility checker answers
+ * "unknown" from a missing value and would answer "pass" from a guessed one.
+ */
+export interface StoredSuppressor {
+  readonly id: string;
+  readonly name: string;
+  readonly manufacturer?: string;
+  readonly mountType: MountType;
+  readonly threadPitch?: string;
+  readonly boreDiameterIn?: number;
+  readonly maxRatedCartridge?: string;
+  readonly ratedCartridges: readonly string[];
+  readonly lengthIn?: number;
+  readonly diameterIn?: number;
+  readonly weightOz?: number;
+  /** Verbatim from the manufacturer. Never parsed. */
+  readonly minBarrelLengthNote?: string;
+  readonly sourceUrl?: string;
+  readonly verified: boolean;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+  readonly archived?: boolean;
+}
+
+/**
+ * One suppressor on one rifle, with whatever the user has actually measured.
+ * Null measurements mean unknown — never a generic delta.
+ */
+export interface StoredSuppressorSetup {
+  readonly id: string;
+  readonly rifleId: string;
+  readonly suppressorId: string;
+  readonly mvDeltaFps?: number;
+  readonly poiVerticalIn?: number;
+  readonly poiHorizontalIn?: number;
+  readonly measuredAtYd?: number;
+  /** ISO date the measurement was taken. */
+  readonly measuredAt?: string;
+  readonly createdAt: string;
+  readonly updatedAt: string;
 }
 
 export interface UnitPrefs {
@@ -95,6 +144,8 @@ export interface StoreSnapshot {
   readonly exportedAt: string;
   readonly rifles: readonly StoredRifle[];
   readonly loads: readonly StoredLoad[];
+  readonly suppressors: readonly StoredSuppressor[];
+  readonly suppressorSetups: readonly StoredSuppressorSetup[];
   readonly prefs: UnitPrefs;
 }
 
@@ -115,6 +166,15 @@ export interface ProfileStore {
   getLoad(id: string): Promise<StoredLoad | null>;
   saveLoad(load: StoredLoad): Promise<StoredLoad>;
   deleteLoad(id: string): Promise<void>;
+
+  listSuppressors(): Promise<StoredSuppressor[]>;
+  getSuppressor(id: string): Promise<StoredSuppressor | null>;
+  saveSuppressor(suppressor: StoredSuppressor): Promise<StoredSuppressor>;
+  deleteSuppressor(id: string): Promise<void>;
+
+  listSuppressorSetups(rifleId?: string): Promise<StoredSuppressorSetup[]>;
+  saveSuppressorSetup(setup: StoredSuppressorSetup): Promise<StoredSuppressorSetup>;
+  deleteSuppressorSetup(id: string): Promise<void>;
 
   getPrefs(): Promise<UnitPrefs>;
   savePrefs(prefs: UnitPrefs): Promise<UnitPrefs>;

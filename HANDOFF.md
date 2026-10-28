@@ -10,7 +10,10 @@ _Running draft. Written in full at the end of Phase 8 (see `docs/BUILD_BRIEF.md`
 - Phase 3 (Supabase schema, RLS, seed pipeline) — complete. 72 further tests, run against a real
   Postgres. Seed data is partial on purpose: see NEEDS_CHAD 8-10.
 - Phase 4 (profiles, DOPE cards, range mode) — complete. 41 further tests, including PDFs rendered
-  to real bytes. See `PLAN.md`.
+  to real bytes.
+- Phase 5 (The Can) — complete. 64 further tests. The suppressor library ships empty because no
+  manufacturer specs could be sourced (NEEDS_CHAD 9); the module works against your own entries.
+  See `PLAN.md`.
 
 ## Running it
 
@@ -38,7 +41,10 @@ stored in the browser, and there are no accounts. `apps/web/.env.example` docume
   delete; powder-temperature correction and truing, both of which show their working and never
   overwrite what you entered.
 - `/dope/[loadId]` — DOPE card as a real PDF in three formats (letter, half page, scope cap).
-- `/range` — one distance, huge numbers, wind sliders, screen stays awake.
+- `/range` — one distance, huge numbers, wind sliders, screen stays awake, suppressor toggle.
+- `/suppressors`, `/suppressors/[id]`, `/suppressors/compatibility` — The Can: specs, a
+  compatibility checker that answers "unknown" rather than guessing, and your own measured velocity
+  deltas per rifle.
 - `/legal/*` — DRAFT terms, privacy and disclaimer.
 
 Everything else in the navigation is shown as "soon" and is not yet built.

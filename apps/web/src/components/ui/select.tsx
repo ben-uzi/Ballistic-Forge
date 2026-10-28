@@ -18,6 +18,7 @@ export interface SelectProps<T extends string> {
   readonly ariaLabel?: string;
   readonly className?: string;
   readonly disabled?: boolean;
+  readonly placeholder?: string;
 }
 
 export function Select<T extends string>({
@@ -28,6 +29,7 @@ export function Select<T extends string>({
   ariaLabel,
   className,
   disabled,
+  placeholder,
 }: SelectProps<T>): React.ReactElement {
   return (
     <SelectPrimitive.Root
@@ -48,7 +50,7 @@ export function Select<T extends string>({
           className,
         )}
       >
-        <SelectPrimitive.Value />
+        <SelectPrimitive.Value placeholder={placeholder} />
         <SelectPrimitive.Icon>
           <ChevronDown className="size-4 text-ink-500" />
         </SelectPrimitive.Icon>

@@ -10,6 +10,7 @@ export * from './solver';
 export * from './spinDrift';
 export * from './stats';
 export * from './suppressor';
+export * from './suppressorFit';
 export * from './truing';
 export * from './units';
 export * from './validation';

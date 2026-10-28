@@ -128,6 +128,20 @@ export function RifleEditor({
         </div>
 
         <div className="flex flex-col gap-1.5">
+          <Label htmlFor="rifle-thread">Muzzle thread</Label>
+          <Input
+            id="rifle-thread"
+            className="font-sans"
+            placeholder="5/8x24"
+            value={draft.threadPitch ?? ''}
+            onChange={(event) => {
+              set('threadPitch', event.target.value === '' ? undefined : event.target.value);
+            }}
+          />
+          <p className="text-xs text-ink-700">Used by the suppressor compatibility checker.</p>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
           <Label>Turret unit</Label>
           <Segmented
             ariaLabel="Turret unit"

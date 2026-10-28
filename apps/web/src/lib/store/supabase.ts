@@ -1,4 +1,12 @@
-import type { ProfileStore, StoreSnapshot, StoredLoad, StoredRifle, UnitPrefs } from './types';
+import type {
+  ProfileStore,
+  StoreSnapshot,
+  StoredLoad,
+  StoredRifle,
+  StoredSuppressor,
+  StoredSuppressorSetup,
+  UnitPrefs,
+} from './types';
 
 /**
  * Placeholder for the signed-in store. The schema, typed client and RLS land in
@@ -44,6 +52,27 @@ export class SupabaseStore implements ProfileStore {
     return this.unavailable();
   }
   deleteLoad(): Promise<void> {
+    return this.unavailable();
+  }
+  listSuppressors(): Promise<StoredSuppressor[]> {
+    return this.unavailable();
+  }
+  getSuppressor(): Promise<StoredSuppressor | null> {
+    return this.unavailable();
+  }
+  saveSuppressor(): Promise<StoredSuppressor> {
+    return this.unavailable();
+  }
+  deleteSuppressor(): Promise<void> {
+    return this.unavailable();
+  }
+  listSuppressorSetups(): Promise<StoredSuppressorSetup[]> {
+    return this.unavailable();
+  }
+  saveSuppressorSetup(): Promise<StoredSuppressorSetup> {
+    return this.unavailable();
+  }
+  deleteSuppressorSetup(): Promise<void> {
     return this.unavailable();
   }
   getPrefs(): Promise<UnitPrefs> {

@@ -4,12 +4,16 @@ import {
   type StoreSnapshot,
   type StoredLoad,
   type StoredRifle,
+  type StoredSuppressor,
+  type StoredSuppressorSetup,
   type UnitPrefs,
 } from './types';
 
 const KEYS = {
   rifles: 'bf.rifles.v1',
   loads: 'bf.loads.v1',
+  suppressors: 'bf.suppressors.v1',
+  suppressorSetups: 'bf.suppressorSetups.v1',
   prefs: 'bf.prefs.v1',
 } as const;
 
@@ -93,6 +97,58 @@ export class LocalStore implements ProfileStore {
     this.write(KEYS.loads, loads);
   }
 
+  listSuppressors(): Promise<StoredSuppressor[]> {
+    return Promise.resolve(this.read<StoredSuppressor[]>(KEYS.suppressors, []));
+  }
+
+  async getSuppressor(id: string): Promise<StoredSuppressor | null> {
+    return (await this.listSuppressors()).find((s) => s.id === id) ?? null;
+  }
+
+  async saveSuppressor(suppressor: StoredSuppressor): Promise<StoredSuppressor> {
+    const all = await this.listSuppressors();
+    const index = all.findIndex((s) => s.id === suppressor.id);
+    if (index === -1) all.push(suppressor);
+    else all[index] = suppressor;
+    this.write(KEYS.suppressors, all);
+    return suppressor;
+  }
+
+  async deleteSuppressor(id: string): Promise<void> {
+    this.write(
+      KEYS.suppressors,
+      (await this.listSuppressors()).filter((s) => s.id !== id),
+    );
+    // A setup without its suppressor is unreachable.
+    this.write(
+      KEYS.suppressorSetups,
+      (await this.listSuppressorSetups()).filter((setup) => setup.suppressorId !== id),
+    );
+  }
+
+  listSuppressorSetups(rifleId?: string): Promise<StoredSuppressorSetup[]> {
+    const all = this.read<StoredSuppressorSetup[]>(KEYS.suppressorSetups, []);
+    return Promise.resolve(
+      rifleId === undefined ? all : all.filter((setup) => setup.rifleId === rifleId),
+    );
+  }
+
+  async saveSuppressorSetup(setup: StoredSuppressorSetup): Promise<StoredSuppressorSetup> {
+    const all = await this.listSuppressorSetups();
+    const index = all.findIndex((s) => s.id === setup.id);
+    if (index === -1) all.push(setup);
+    else all[index] = setup;
+    this.write(KEYS.suppressorSetups, all);
+    return setup;
+  }
+
+  async deleteSuppressorSetup(id: string): Promise<void> {
+    this.write(
+      KEYS.suppressorSetups,
+      (await this.listSuppressorSetups()).filter((setup) => setup.id !== id),
+    );
+  }
+
   getPrefs(): Promise<UnitPrefs> {
     return Promise.resolve({
       ...DEFAULT_UNIT_PREFS,
@@ -111,6 +167,8 @@ export class LocalStore implements ProfileStore {
       exportedAt: new Date().toISOString(),
       rifles: await this.listRifles(),
       loads: await this.listLoads(),
+      suppressors: await this.listSuppressors(),
+      suppressorSetups: await this.listSuppressorSetups(),
       prefs: await this.getPrefs(),
     };
   }
@@ -118,6 +176,8 @@ export class LocalStore implements ProfileStore {
   importAll(snapshot: StoreSnapshot): Promise<void> {
     this.write(KEYS.rifles, snapshot.rifles);
     this.write(KEYS.loads, snapshot.loads);
+    this.write(KEYS.suppressors, snapshot.suppressors ?? []);
+    this.write(KEYS.suppressorSetups, snapshot.suppressorSetups ?? []);
     this.write(KEYS.prefs, snapshot.prefs);
     return Promise.resolve();
   }
@@ -137,8 +197,12 @@ export class LocalStore implements ProfileStore {
 
   /** True when there is guest data worth offering to migrate into an account. */
   async hasData(): Promise<boolean> {
-    const [rifles, loads] = await Promise.all([this.listRifles(), this.listLoads()]);
-    return rifles.length > 0 || loads.length > 0;
+    const [rifles, loads, suppressors] = await Promise.all([
+      this.listRifles(),
+      this.listLoads(),
+      this.listSuppressors(),
+    ]);
+    return rifles.length > 0 || loads.length > 0 || suppressors.length > 0;
   }
 }
 

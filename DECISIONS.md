@@ -180,3 +180,16 @@ One line each: **decision** — reason — how to reverse.
 - **Range mode reads its conditions from the calculator's saved form** — one place to enter the weather, and the range screen stays a readout rather than a second data-entry surface — n/a.
 - **Screen Wake Lock is reacquired on `visibilitychange`** — browsers drop the lock when the tab is backgrounded, and a display that sleeps between shots is the whole problem it solves — n/a.
 - **Range mode's suppressor toggle states that no delta is recorded instead of offering a generic one** — the brief's resolution order ends at "No delta yet", never at an invented number. It is wired for real in Phase 5 — n/a.
+
+## Phase 5 — The Can
+
+- **The compatibility checker lives in `packages/engine/src/suppressorFit.ts`** — it is pure, zero-dependency domain logic that a React Native client will need unchanged, and the engine already owns `suppressor.ts` — move it to a shared package if the engine's remit ever narrows to physics.
+- **`unknown` outranks `warn` in the aggregate verdict** — the brief's hard rule is that missing data never passes, and folding "we don't know" in with "we know, and it's marginal" would quietly do exactly that — edit `worstOf`.
+- **The checker never ranks cartridges by pressure** — there is no public dataset for it, so the only ordering used is bullet diameter, and the message says so instead of implying a pressure judgement — n/a.
+- **A minimum-barrel-length note is quoted verbatim and always surfaced, even with a long barrel** — these notes carry conditions ("16 in minimum for .300 Win Mag") that a single number cannot, and parsing prose is how a checker gets someone hurt — n/a.
+- **A thread mismatch fails and the app does not suggest an adapter** — adapters exist, but which are safe on a given host is a manufacturer question — n/a.
+- **Bore clearance under 0.004 in warns rather than fails** — makers publish bore inconsistently, some quoting the calibre and some the hole, so an exact match is a prompt to confirm, not a verdict — edit `TIGHT_BORE_CLEARANCE_IN`.
+- **Cartridge and thread names are matched after conservative normalisation** — punctuation, case and spacing are ignored and only unambiguous abbreviations expand (`win`, `rem`, `mag`); nothing guesses that two differently named cartridges are the same, and `.223 Remington` never matches `5.56 NATO` — `ABBREVIATIONS` in `suppressorFit.ts`.
+- **Suppressor specs are optional everywhere, and the form says blanks are fine** — the checker reports "unknown" from a missing value and would report "pass" from a guessed one, so the UI must not pressure anyone into filling a box — n/a.
+- **The shared suppressor library ships empty** — manufacturer sites refuse automated requests, so rather than invent specifications the module works against suppressors the user enters themselves (NEEDS_CHAD 9) — n/a.
+- **`runCalc` gained an optional input transform** — attaching a suppressor is a last-mile change to the solve input, and threading it through every form field would have duplicated the engine's own `applySuppressor` — n/a.

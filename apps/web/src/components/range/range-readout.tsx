@@ -13,8 +13,11 @@ import { Slider } from '@/components/ui/slider';
 import { DEFAULT_FORM } from '@/lib/calc/defaults';
 import { UNIT_LABEL, fmtVelocity } from '@/lib/calc/format';
 import { runCalc } from '@/lib/calc/solve';
+import { DEFAULT_FLAGS } from '@/lib/flags';
 import { formFromProfile } from '@/lib/profiles/to-form';
-import { useLoads, useRifles } from '@/lib/store/hooks';
+import { useLoads, useRifles, useSuppressorSetups, useSuppressors } from '@/lib/store/hooks';
+import { resolveSuppressorDelta, withSuppressor } from '@/lib/suppressors/resolve';
+import { Switch } from '@/components/ui/switch';
 
 const STEP_YD = 25;
 const FINE_STEP_YD = 5;
@@ -33,12 +36,15 @@ const CONDITIONS_KEY = 'bf.range.conditions.v1';
 export function RangeReadout(): ReactElement {
   const { data: rifles, loading: riflesLoading } = useRifles();
   const { data: loads } = useLoads();
+  const { data: suppressors } = useSuppressors();
+  const { data: setups } = useSuppressorSetups();
   const requestedLoadId = useSearchParams().get('load');
 
   const [loadId, setLoadId] = useState<string | null>(null);
   const [distance, setDistance] = useState(500);
   const [windSpeed, setWindSpeed] = useState(0);
   const [windClock, setWindClock] = useState(3);
+  const [suppressed, setSuppressed] = useState(false);
 
   const activeLoads = useMemo(() => loads.filter((load) => load.archived !== true), [loads]);
 
@@ -54,6 +60,13 @@ export function RangeReadout(): ReactElement {
   const load = activeLoads.find((candidate) => candidate.id === loadId) ?? null;
   const rifle = rifles.find((candidate) => candidate.id === load?.rifleId) ?? null;
 
+  // The Can's resolution order: your own measurement, then field data once it
+  // is public and plentiful, then nothing at all. Never a generic delta.
+  const setup = setups.find((entry) => entry.rifleId === rifle?.id) ?? null;
+  const canName = suppressors.find((entry) => entry.id === setup?.suppressorId)?.name ?? null;
+  const delta = resolveSuppressorDelta(setup, null, DEFAULT_FLAGS);
+  const haveDelta = delta.mvDeltaFps !== null;
+
   const solution = useMemo(() => {
     if (load === null || rifle === null) return null;
     const stored = readConditions();
@@ -66,10 +79,14 @@ export function RangeReadout(): ReactElement {
       rangeEnd: distance,
       rangeStep: Math.max(distance, 1),
     };
-    const outcome = runCalc(formFromProfile(rifle, load, base));
+    const outcome = runCalc(
+      formFromProfile(rifle, load, base),
+      undefined,
+      suppressed && haveDelta ? (input) => withSuppressor(input, delta) : undefined,
+    );
     if (!outcome.ok) return null;
     return { row: outcome.result.rows[0] ?? null, units: base.units, result: outcome.result };
-  }, [load, rifle, distance, windSpeed, windClock]);
+  }, [load, rifle, distance, windSpeed, windClock, suppressed, haveDelta, delta]);
 
   if (riflesLoading) {
     return <p className="mx-auto max-w-2xl px-4 py-10 text-sm text-ink-500">Loading…</p>;
@@ -231,14 +248,29 @@ export function RangeReadout(): ReactElement {
       </div>
 
       {/* ── Suppressor ────────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between gap-3 rounded-card border border-gunmetal-700 bg-gunmetal-850/60 px-4 py-3">
-        <span className="flex items-center gap-2 text-sm text-ink-500">
-          <VolumeX className="size-4" aria-hidden="true" />
-          Suppressed
-        </span>
-        <span className="text-xs text-ink-700">
-          No measured delta for this rifle yet — The Can is not built.
-        </span>
+      <div className="space-y-2 rounded-card border border-gunmetal-700 bg-gunmetal-850/60 px-4 py-3">
+        <div className="flex items-center justify-between gap-3">
+          <span className="flex items-center gap-2 text-sm text-ink-100">
+            <VolumeX className="size-4 text-ink-500" aria-hidden="true" />
+            {canName === null ? 'Suppressed' : canName}
+          </span>
+          <Switch
+            checked={suppressed && haveDelta}
+            onCheckedChange={setSuppressed}
+            disabled={!haveDelta}
+            aria-label="Suppressed"
+          />
+        </div>
+        <p className="text-xs text-ink-700">
+          {haveDelta
+            ? `${delta.explanation} ${delta.mvDeltaFps === null ? '' : `${delta.mvDeltaFps > 0 ? '+' : ''}${String(delta.mvDeltaFps)} fps`}`
+            : delta.explanation}
+        </p>
+        {haveDelta ? null : (
+          <Link href="/suppressors" className="text-xs text-forge-500 underline">
+            Record a measurement in The Can
+          </Link>
+        )}
       </div>
 
       <p className="text-center text-xs text-ink-700">
