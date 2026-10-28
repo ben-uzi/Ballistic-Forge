@@ -149,7 +149,7 @@ function Th({
 }
 
 function Unit({ children }: { readonly children: ReactNode }): ReactElement {
-  return <span className="text-[0.625rem] font-normal normal-case text-ink-700">{children}</span>;
+  return <span className="text-[0.625rem] font-normal normal-case text-ink-500">{children}</span>;
 }
 
 function Td({

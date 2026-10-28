@@ -72,7 +72,7 @@ export default function FeedbackPage(): ReactElement {
                     setMessage(event.target.value);
                   }}
                 />
-                <p className="text-xs text-ink-700">
+                <p className="text-xs text-ink-500">
                   If you are correcting a figure, include the manufacturer page you are reading it
                   from. Corrections are never applied without a human checking the source.
                 </p>

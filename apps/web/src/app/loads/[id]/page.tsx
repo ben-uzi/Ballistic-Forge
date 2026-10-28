@@ -286,7 +286,7 @@ function Stat({
 }): ReactElement {
   return (
     <div>
-      <dt className="text-[0.625rem] uppercase tracking-wide text-ink-700">{label}</dt>
+      <dt className="text-[0.625rem] uppercase tracking-wide text-ink-500">{label}</dt>
       <dd className="num mt-0.5 flex items-center gap-1.5 text-ink-100">
         {value}
         {badge}

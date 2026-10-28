@@ -102,7 +102,7 @@ export default function RiflesPage(): ReactElement {
                 <span className="num shrink-0 text-xs text-ink-500">
                   {count === 1 ? '1 load' : `${String(count)} loads`}
                 </span>
-                <ChevronRight className="size-4 shrink-0 text-ink-700" aria-hidden="true" />
+                <ChevronRight className="size-4 shrink-0 text-ink-500" aria-hidden="true" />
               </Link>
             </li>
           );

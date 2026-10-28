@@ -138,7 +138,7 @@ export function RifleEditor({
               set('threadPitch', event.target.value === '' ? undefined : event.target.value);
             }}
           />
-          <p className="text-xs text-ink-700">Used by the suppressor compatibility checker.</p>
+          <p className="text-xs text-ink-500">Used by the suppressor compatibility checker.</p>
         </div>
 
         <div className="flex flex-col gap-1.5">

@@ -107,7 +107,7 @@ export default function DopePage(): ReactElement {
                 title: spec.description,
               }))}
             />
-            <p className="text-xs text-ink-700">{DOPE_FORMATS[format].description}</p>
+            <p className="text-xs text-ink-500">{DOPE_FORMATS[format].description}</p>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
@@ -228,7 +228,7 @@ export default function DopePage(): ReactElement {
               </tbody>
             </table>
           </div>
-          <p className="text-xs text-ink-700">
+          <p className="text-xs text-ink-500">
             The printed card carries the full disclaimer, the conditions above, and a timestamp.
           </p>
         </section>

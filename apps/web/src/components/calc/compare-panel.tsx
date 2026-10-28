@@ -172,7 +172,7 @@ export function ComparePanel({ form, loads, onChange }: ComparePanelProps): Reac
             Add a load to compare
           </Button>
         ) : (
-          <p className="text-xs text-ink-700">
+          <p className="text-xs text-ink-500">
             Three loads is the limit — beyond that the charts stop being readable.
           </p>
         )}

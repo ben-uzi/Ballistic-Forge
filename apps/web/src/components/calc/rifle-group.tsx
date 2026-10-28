@@ -88,7 +88,7 @@ export function RifleGroup({ form, set, setUnits, issues }: GroupProps): ReactEl
               { value: 'left', label: 'Left' },
             ]}
           />
-          <p className="text-xs text-ink-700">
+          <p className="text-xs text-ink-500">
             Right-hand twist drifts the bullet right at distance.
           </p>
         </div>

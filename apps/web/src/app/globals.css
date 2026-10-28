@@ -20,8 +20,11 @@
   /* Status: muted, never neon. */
   --color-pass-500: #4e9a6a;
   --color-warn-500: #c8860a;
-  --color-fail-500: #b4544a;
+  --color-fail-500: #ce7268;
 
+  /* Contrast against the dark surfaces is measured, not assumed: ink-500 and
+     everything above it clears WCAG AA for body text on gunmetal-850. ink-700
+     is deliberately below it and is only used for disabled controls. */
   --color-ink-100: #f2f2f5;
   --color-ink-300: #c3c3cf;
   --color-ink-500: #8b8b9e;

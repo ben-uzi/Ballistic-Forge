@@ -109,7 +109,7 @@ export default function OnboardingPage(): ReactElement {
                   { value: 'iphy', label: 'IPHY' },
                 ]}
               />
-              <p className="text-xs text-ink-700">
+              <p className="text-xs text-ink-500">
                 Whatever is written on your elevation turret. You can change all of this later.
               </p>
             </div>

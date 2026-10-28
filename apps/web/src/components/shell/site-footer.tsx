@@ -33,7 +33,7 @@ export function SiteFooter(): ReactElement {
             Privacy
           </Link>
         </nav>
-        <p className="text-ink-700">Built in the Lab. Proven in the Field.</p>
+        <p className="text-ink-500">Built in the Lab. Proven in the Field.</p>
       </div>
     </footer>
   );

@@ -68,7 +68,7 @@ export function WaitlistForm(): ReactElement {
       {state.kind === 'error' ? (
         <p className="text-xs text-fail-500">{state.message}</p>
       ) : (
-        <p className="text-xs text-ink-700">
+        <p className="text-xs text-ink-500">
           Twenty to fifty testers for the pilot. Your address is used for the beta and nothing else.
         </p>
       )}

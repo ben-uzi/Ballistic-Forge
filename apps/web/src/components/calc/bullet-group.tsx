@@ -41,7 +41,7 @@ export function BulletGroup({ form, set, setUnits, issues }: GroupProps): ReactE
               set('bulletName', event.target.value);
             }}
           />
-          <p className="text-xs text-ink-700">
+          <p className="text-xs text-ink-500">
             The library browser arrives in Phase 7 — type any bullet for now.
           </p>
         </div>
@@ -116,7 +116,7 @@ export function BulletGroup({ form, set, setUnits, issues }: GroupProps): ReactE
               },
             ]}
           />
-          <p className="text-xs text-ink-700">
+          <p className="text-xs text-ink-500">
             Use the BC published for the function you pick. They are not interchangeable.
           </p>
         </div>

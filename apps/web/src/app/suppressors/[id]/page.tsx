@@ -183,7 +183,7 @@ export default function SuppressorDetailPage(): ReactElement {
 
             <div className="mt-4 flex flex-wrap gap-3 border-t border-gunmetal-700 pt-3 text-xs">
               {suppressor.sourceUrl === undefined ? (
-                <span className="text-ink-700">No source recorded.</span>
+                <span className="text-ink-500">No source recorded.</span>
               ) : (
                 <a
                   className="flex items-center gap-1 text-forge-500 underline"
@@ -337,7 +337,7 @@ function RifleFit({
           <h3 className="text-xs font-semibold uppercase tracking-wide text-ink-500">
             Your measurements
           </h3>
-          <p className="text-xs text-ink-700">{resolved.explanation}</p>
+          <p className="text-xs text-ink-500">{resolved.explanation}</p>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <OptionalNumberField
@@ -414,9 +414,9 @@ function Spec({
 }): ReactElement {
   return (
     <div>
-      <dt className="text-[0.625rem] uppercase tracking-wide text-ink-700">{label}</dt>
+      <dt className="text-[0.625rem] uppercase tracking-wide text-ink-500">{label}</dt>
       <dd className="num mt-0.5 text-ink-100">
-        {value === undefined ? <span className="text-ink-700">unknown</span> : value}
+        {value === undefined ? <span className="text-ink-500">unknown</span> : value}
       </dd>
     </div>
   );

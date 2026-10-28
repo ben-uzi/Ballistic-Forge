@@ -110,7 +110,7 @@ export default function SessionDetailPage(): ReactElement {
                   </span>
                 </div>
                 {string.velocitiesFps.length === 0 ? null : (
-                  <p className="num mt-1 text-xs text-ink-700">
+                  <p className="num mt-1 text-xs text-ink-500">
                     {string.velocitiesFps.join(' · ')}
                   </p>
                 )}
@@ -184,7 +184,7 @@ export default function SessionDetailPage(): ReactElement {
                 </p>
               ))
             )}
-            <p className="text-xs text-ink-700">
+            <p className="text-xs text-ink-500">
               Community aggregates are not published yet. Your own history always shows everything
               you logged, whether or not it counts towards one.
             </p>
@@ -270,7 +270,7 @@ export function toSample(
 function Stat({ label, value }: { readonly label: string; readonly value: string }): ReactElement {
   return (
     <div className="bg-gunmetal-850 px-2 py-2">
-      <dt className="text-[0.625rem] uppercase tracking-wide text-ink-700">{label}</dt>
+      <dt className="text-[0.625rem] uppercase tracking-wide text-ink-500">{label}</dt>
       <dd className="text-sm text-ink-100">{value}</dd>
     </div>
   );
@@ -285,9 +285,9 @@ function Spec({
 }): ReactElement {
   return (
     <div>
-      <dt className="text-[0.625rem] uppercase tracking-wide text-ink-700">{label}</dt>
+      <dt className="text-[0.625rem] uppercase tracking-wide text-ink-500">{label}</dt>
       <dd className="num mt-0.5 text-ink-100">
-        {value === undefined ? <span className="text-ink-700">not recorded</span> : value}
+        {value === undefined ? <span className="text-ink-500">not recorded</span> : value}
       </dd>
     </div>
   );

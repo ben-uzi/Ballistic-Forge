@@ -18,7 +18,7 @@ as `phase-N: <summary>`. Decisions go in `DECISIONS.md`, blockers in `NEEDS_CHAD
 | 5     | The Can — suppressor toggle + compatibility checker | 4          | ☑      |
 | 6     | The Field — session logging + aggregation           | 3, 4       | ☐      |
 | 7     | Library, auth polish, entitlements stub, onboarding | 3–6        | ☐      |
-| 8     | Hardening, E2E, a11y, Lighthouse, handoff           | all        | ☐      |
+| 8     | Hardening, E2E, a11y, Lighthouse, handoff           | all        | ☑      |
 
 ---
 
@@ -252,14 +252,17 @@ Pure functions only — no React, DOM, or network. All internal math in SI.
 
 ## Phase 8 — Hardening & handoff §12
 
-- [ ] Playwright smoke: guest calc solve; create account; rifle/load; DOPE PDF; log session; admin sees it; compatibility check
-- [ ] Accessibility: keyboard nav, labels on all inputs, AA contrast on dark theme
-- [ ] Lighthouse mobile ≥ 85 performance, PWA installable
-- [ ] Security review: RLS tests, admin guards, rate limits, no PII leakage in aggregates
-- [ ] `.env.example` fully documented; README (local Supabase, seeding, tests, Vercel deploy)
-- [ ] `HANDOFF.md`: done / stubbed / run / deploy / physics limitations / coverage / top 10 next tasks / SAAMI sound-standard note
-- [ ] Walk the §15 Definition of Done checklist and record results honestly
-- [ ] **Gate** → `phase-8: hardening + handoff`
+- [x] Playwright smoke: guest calc solve; rifle/load; DOPE PDF; range mode; log a session; library; compatibility check; admin guard; 404. 17 tests × desktop and mobile = 34, against a production build in demo mode
+- [ ] "create account" smoke test — there are no accounts yet (NEEDS_CHAD 1)
+- [x] Accessibility: every input labelled, table captioned with scoped headers, 44 px targets, skip link, reduced-motion honoured, pinch-zoom never disabled
+- [x] AA contrast on the dark theme — **measured**, and two tokens were fixed as a result: informative help text moved off `ink-700` (2.4:1) to `ink-500` (4.6:1), and `fail-500` was lightened to clear 4.5:1 for error text
+- [x] PWA installable: manifest, generated icons, hand-written service worker; the calculator works offline once loaded
+- [ ] Lighthouse mobile ≥ 85 measured on real hardware — needs a deploy (top-ten item 10)
+- [x] Security review: RLS tested against real Postgres, admin guard is a server component, rate limits on both public endpoints, aggregates carry no PII and are gated in the database
+- [x] `.env.example` fully documented; README covers local Supabase, seeding, tests and Vercel settings
+- [x] `HANDOFF.md`: done / stubbed / run / deploy / physics limitations / coverage / top ten next tasks / SAAMI sound-standard note
+- [x] §15 Definition of Done walked and recorded honestly in `HANDOFF.md`
+- [x] **Gate** → `phase-8: hardening + handoff`
 
 ---
 

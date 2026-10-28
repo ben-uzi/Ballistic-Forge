@@ -1,101 +1,112 @@
 # Handoff
 
-_Running draft. Written in full at the end of Phase 8 (see `docs/BUILD_BRIEF.md` §0.9)._
+The state of Ballistic Forge at the end of the pilot build, written to be useful to whoever picks
+it up next — including the parts that are shaky.
 
 ## Status
 
-- Phase 0 (scaffold) — complete.
-- Phase 1 (engine) — complete. 143 tests; 99.8% line / 92.9% branch coverage.
-- Phase 2 (web shell + calculator) — complete. 71 further tests.
-- Phase 3 (Supabase schema, RLS, seed pipeline) — complete. 72 further tests, run against a real
-  Postgres. Seed data is partial on purpose: see NEEDS_CHAD 8-10.
-- Phase 4 (profiles, DOPE cards, range mode) — complete. 41 further tests, including PDFs rendered
-  to real bytes.
-- Phase 5 (The Can) — complete. 64 further tests. The suppressor library ships empty because no
-  manufacturer specs could be sourced (NEEDS_CHAD 9); the module works against your own entries.
-- Phase 6 (The Field) — complete. 76 further tests. The aggregation core is finished and tested;
-  running it server-side on submit and nightly needs the backend.
-- Phase 7 (library, account, onboarding) — complete. 22 further tests. Auth is the one item left
-  undone: it needs a Supabase project and Google credentials (NEEDS_CHAD 1, 2). See `PLAN.md`.
+All eight phases are complete. **523 tests pass**: 489 unit and integration tests across the three
+packages, plus 34 Playwright end-to-end tests on desktop and mobile viewports.
+
+| Phase | Scope                                  | State |
+| ----- | -------------------------------------- | ----- |
+| 0     | Monorepo scaffold, tooling             | Done  |
+| 1     | `@bf/engine` — the physics             | Done  |
+| 2     | Web shell + calculator                 | Done  |
+| 3     | Supabase schema, RLS, seed pipeline    | Done  |
+| 4     | Profiles, DOPE cards, range mode       | Done  |
+| 5     | The Can — suppressor module            | Done  |
+| 6     | The Field — logging + aggregation      | Done  |
+| 7     | Library, account, onboarding           | Done  |
+| 8     | Hardening, E2E, accessibility, handoff | Done  |
+
+Engine coverage: **99.7% lines, 93.2% branches, 100% functions**.
 
 ## Running it
 
-```bash
+```sh
 pnpm install
-pnpm dev            # http://localhost:3000 — the calculator works with no env vars
-pnpm gate           # typecheck + lint + test, the bar every phase must clear
-pnpm seed           # validate supabase/seed/*.csv and regenerate seed.sql
+pnpm dev                           # http://localhost:3000 — works with no env vars
+pnpm gate                          # typecheck + lint + 489 tests
+pnpm --filter @bf/web e2e          # 34 end-to-end tests
+pnpm seed                          # validate seed CSVs, regenerate seed.sql + the bundled library
 ```
 
-The database tests need no Docker and no Supabase project: they apply the real migrations to
-PGlite (Postgres compiled to WebAssembly) and exercise the real row-level security policies.
-
-With no `.env.local` the app is in **demo mode**: the calculator is fully functional, profiles are
-stored in the browser, and there are no accounts. `apps/web/.env.example` documents what to fill in
-(NEEDS_CHAD 1).
+See [`README.md`](README.md) for local Supabase, seeding and the Vercel settings.
 
 ## What works today
 
-- `/` — landing, three pillars, beta waitlist (logs to the server in demo mode and says so).
-- `/calc` — the solver: bullet/load, rifle and conditions groups; sticky solution table with
-  transonic flagging; Drop / Velocity / Energy / Drift charts; compare up to three loads; US and
-  metric units throughout; inline validation; works offline once loaded.
-- `/rifles`, `/rifles/[id]`, `/loads/[id]` — rifle and load profiles with duplicate, archive and
-  delete; powder-temperature correction and truing, both of which show their working and never
-  overwrite what you entered.
-- `/dope/[loadId]` — DOPE card as a real PDF in three formats (letter, half page, scope cap).
-- `/range` — one distance, huge numbers, wind sliders, screen stays awake, suppressor toggle.
-- `/suppressors`, `/suppressors/[id]`, `/suppressors/compatibility` — The Can: specs, a
-  compatibility checker that answers "unknown" rather than guessing, and your own measured velocity
-  deltas per rifle.
-- `/sessions`, `/sessions/new`, `/sessions/[id]` — a five-step logging wizard with draft
-  autosave, a chronograph CSV importer, and per-session reasons for whether it would count
-  towards a community aggregate.
-- `/field` — your velocity history over time and by load, with the community view explicitly
-  gated and the thresholds stated.
-- `/library` — 29 bullets bundled from manufacturer pages, searchable and filterable, each badged
-  unverified with a link to its source; one click loads a bullet into the calculator.
-- `/account` — units, contribution opt-in, JSON and CSV export, JSON import, delete everything.
-- `/onboarding` — three steps ending on a real solution.
-- `/feedback` — feedback and library corrections; corrections go to a review queue, never straight
-  into the library.
-- `/admin` — server-guarded; says plainly that it needs a backend in demo mode.
-- `/legal/*` — DRAFT terms, privacy and disclaimer.
+Everything below runs with **no backend**, storing data in the browser.
 
-Everything else in the navigation is shown as "soon" and is not yet built.
+| Route                                                             | What                                                                                                                                                                                                                      |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`                                                               | Landing, three pillars, beta waitlist                                                                                                                                                                                     |
+| `/calc`                                                           | The solver: collapsible input groups, sticky solution table with transonic flagging, Drop/Velocity/Energy/Drift charts, compare up to three loads, US and metric throughout, inline validation, works offline once loaded |
+| `/rifles`, `/rifles/[id]`, `/loads/[id]`                          | Rifle → load profiles; duplicate, archive, delete; powder-temperature correction and truing, both of which show their working                                                                                             |
+| `/dope/[loadId]`                                                  | DOPE card as a real PDF in three formats (letter, half page, scope cap)                                                                                                                                                   |
+| `/range`                                                          | One distance, huge numbers, wind sliders, screen stays awake, suppressor toggle                                                                                                                                           |
+| `/suppressors`, `/suppressors/[id]`, `/suppressors/compatibility` | The Can: specs, a compatibility checker that answers "unknown" rather than guessing, your own measured velocity deltas                                                                                                    |
+| `/sessions`, `/sessions/new`, `/sessions/[id]`                    | Five-step logging wizard with draft autosave and chronograph CSV import; per-session reasons for whether it would count towards an aggregate                                                                              |
+| `/field`                                                          | Your velocity history over time and by load; community view explicitly gated                                                                                                                                              |
+| `/library`                                                        | 29 bullets from manufacturer pages, searchable and filterable, each badged unverified                                                                                                                                     |
+| `/account`                                                        | Units, contribution opt-in, JSON/CSV export, JSON import, delete everything                                                                                                                                               |
+| `/onboarding`                                                     | Three steps ending on a real solution                                                                                                                                                                                     |
+| `/feedback`                                                       | Feedback and library corrections                                                                                                                                                                                          |
+| `/admin`                                                          | Server-guarded; says plainly it needs a backend                                                                                                                                                                           |
+| `/legal/*`                                                        | DRAFT terms, privacy, disclaimer                                                                                                                                                                                          |
 
-## Engine: known physics limitations (as of Phase 1)
+## What is stubbed, and why
 
-- **Point-mass (3DOF) model** with standard G1/G7 drag functions. No 6DOF, no custom drag curves yet
-  (the `DragModel` interface is ready for them).
-- **Drag tables were transcribed, not downloaded** — verify against source (NEEDS_CHAD 4a).
-- **Not yet validated against an external solver.** The reference-case harness exists and skips
-  until `reference_cases.json` is filled (NEEDS_CHAD 4). Until then, correctness rests on the
-  analytical/physical tests (vacuum parabola, convergence, symmetry, round-trips).
-- **Constant atmosphere along the flight path** (no density change with bullet height).
+| Thing                            | State                                                                                             | Blocked on                                                                                                                                    |
+| -------------------------------- | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Accounts, sign-in, sync          | Typed clients, RLS policies and the profile-creation trigger are built and tested. No sign-in UI. | A Supabase project and Google OAuth credentials (NEEDS_CHAD 1, 2). A sign-in form that cannot sign anyone in would be worse than its absence. |
+| Server-side aggregation          | The aggregation core is finished, with 44 tests. Nothing invokes it on submit or nightly.         | The backend. It is a pure function over fetched rows — wiring it into an Edge Function is a small job.                                        |
+| Offline session queue            | Drafts autosave locally; there is no sync queue.                                                  | The backend. Nothing to sync to.                                                                                                              |
+| Field MV badge in the calculator | Not wired.                                                                                        | Real aggregates. The flag is off and there is no data to badge.                                                                               |
+| Device-specific chrono parsers   | A generic importer handles both devices in practice.                                              | Real Garmin Xero and LabRadar export files (NEEDS_CHAD 7).                                                                                    |
+| Payments                         | `entitlements` table and a single tier config. Every beta user is a `founder`.                    | Deliberately out of scope for the pilot.                                                                                                      |
+| Suppressor library               | Ships empty; the module works against suppressors you enter.                                      | Manufacturer sites refuse automated requests (NEEDS_CHAD 9).                                                                                  |
+| Seed data breadth                | 29 bullets, 1 factory load, 1 cartridge.                                                          | Page-by-page transcription (NEEDS_CHAD 8, 10).                                                                                                |
+
+## Engine: known physics limitations
+
+These are the honest edges of the model. Read them before trusting a number at distance.
+
+- **Point-mass (3DOF)** with standard G1/G7 drag functions. No 6DOF, no custom drag curves yet —
+  the `DragModel` interface is ready for them.
+- **Drag tables were transcribed, not downloaded.** A single wrong digit would bias every solution.
+  Verify against source (NEEDS_CHAD 4a).
+- **Not validated against an external solver.** The reference-case harness exists and skips until
+  `reference_cases.json` is filled (NEEDS_CHAD 4). Until then correctness rests on analytical and
+  physical tests: vacuum parabola, step-size convergence, wind symmetry, incline symmetry, zero
+  round-trips, truing round-trips.
+- **Constant atmosphere along the flight path** — no density change with bullet height.
 - **Single constant wind zone**; no vertical wind.
-- **Spin drift is the Litz empirical formula**, applied as a lateral offset after integration; no
-  lateral zero (drift accrues from the muzzle).
+- **Spin drift is the Litz empirical formula**, applied as a lateral offset after integration. No
+  lateral zero, so drift accrues from the muzzle.
 - **Aerodynamic jump** is an empirical approximation, off by default and unverified (NEEDS_CHAD 4b).
 - **Stability uses the Miller rule**, which is less accurate for very long, plastic-tipped or
   monolithic bullets.
 - **No scope cant** input.
-- **Saturation vapor pressure uses the over-water formula** at all temperatures (tiny error below 0 °C).
+- **Saturation vapour pressure uses the over-water formula** at all temperatures — a tiny error
+  below 0 °C.
 
-## Engine quick reference
+## A note on suppressor sound data
 
-```ts
-import { solve, standardDragModel, rangeSteps, buildDope, CLICK_VALUES } from '@bf/engine';
-```
+There is no decibel data in this product and that is deliberate. Suppressor sound measurement is
+governed by **SAAMI Z299.6** (and, historically, MIL-STD-1474), which specifies microphone
+placement, environment and metric. Numbers measured any other way are not comparable, and the
+marketing figures manufacturers publish are frequently not comparable with each other. Adding a
+"dB" column that mixed those sources would be exactly the kind of confident-looking wrong number
+this product exists to avoid.
 
-All inputs are SI (`muzzleVelocityMps`, `sightHeightM`, `temperatureK` …); convert with the helpers
-in `units.ts`. `solve()` throws `BallisticsInputError` for invalid input; call
-`validateSolveInput()` first to show issues inline.
+If sound data is ever added, it should come from a single methodologically consistent source. PEW
+Science is the obvious candidate — the suppressor pages link out to it rather than reproducing it,
+because their work is theirs.
 
-## Web quick reference
+## Where things live
 
-The web app never calls the engine directly from a component. The seam is
-`apps/web/src/lib/calc/`:
+The web app never calls the engine from a component. The seam is `apps/web/src/lib/calc/`:
 
 | Module      | Responsibility                                                   |
 | ----------- | ---------------------------------------------------------------- |
@@ -106,27 +117,65 @@ The web app never calls the engine directly from a component. The seam is
 | `issues.ts` | engine validation paths → form fields                            |
 | `format.ts` | display formatting                                               |
 
-Persistence goes through `getStore()` (`lib/store/`), which returns the guest `LocalStore` today and
-a `SupabaseStore` once the backend exists.
+Other seams worth knowing:
 
-## Database quick reference
+| Concern                  | Where                                                               |
+| ------------------------ | ------------------------------------------------------------------- |
+| Schema                   | `supabase/migrations/0001…0005`                                     |
+| Row types, `Database`    | `packages/db/src/types.ts` (hand-maintained; drift-checked by test) |
+| Zod schemas              | `packages/db/src/schemas.ts`                                        |
+| Field aggregation        | `packages/db/src/aggregate.ts`                                      |
+| Chronograph import       | `packages/db/src/chrono.ts`                                         |
+| Suppressor compatibility | `packages/engine/src/suppressorFit.ts`                              |
+| Persistence              | `getStore()` in `apps/web/src/lib/store/`                           |
 
-The schema lives in `supabase/migrations` as five ordered plain-SQL files. `@bf/db` holds the
-TypeScript row types, the shared Zod schemas, and the seed pipeline.
+## Accessibility
 
-| Thing                      | Where                                             |
-| -------------------------- | ------------------------------------------------- |
-| Schema                     | `supabase/migrations/0001…0005`                   |
-| Row types, `Database`      | `packages/db/src/types.ts`                        |
-| Zod schemas (seed + forms) | `packages/db/src/schemas.ts`                      |
-| Seed loader                | `packages/db/src/cli/seed.ts`, run as `pnpm seed` |
-| Seed data                  | `supabase/seed/*.csv` → generated `seed.sql`      |
-| Typed clients              | `apps/web/src/lib/supabase/{client,server}.ts`    |
+- Every input has a label; the solution table has a caption and scoped headers.
+- All interactive targets clear 44 px.
+- Contrast is **measured, not assumed**: every text token used for content clears WCAG AA (4.5:1)
+  against the darkest card surface. `ink-700` sits below that deliberately and is used only for
+  disabled controls, which WCAG exempts.
+- `prefers-reduced-motion` is honoured; pinch-zoom is never disabled; there is a skip link.
 
-Row-level security in one line: user data is owner-only, reference data is world-readable and
-admin-writable, and community aggregates are invisible to non-admins until the `field_data_public`
-flag is switched on — enforced by policy, not by the UI.
+## The top ten things to do next
 
-**Hand-maintained types.** `supabase gen types` needs a running project, so `packages/db/src/types.ts`
-is written by hand. Two tests compare it against `information_schema` (table list and defaulted
-columns), so it cannot drift silently. Regenerate properly once a project exists.
+1. **Create the Supabase project** and paste the keys into `apps/web/.env.local` (NEEDS_CHAD 1).
+   Everything marked "stubbed" above unblocks from this one step.
+2. **Fill `reference_cases.json`** by running five loads through JBM and Hornady 4DOF
+   (NEEDS_CHAD 4). This is the single highest-value task in the list: it turns "the tests say the
+   maths is self-consistent" into "the solver agrees with established solvers".
+3. **Verify the G1/G7 drag tables** against JBM's published files (NEEDS_CHAD 4a) — fifteen minutes,
+   and it underwrites every number the product produces.
+4. **Build the sign-in UI** (magic link + Google) and the guest → account migration, which already
+   has its data path in `exportAll`/`importAll`.
+5. **Wire the aggregation core into an Edge Function** on session submit, plus a nightly
+   recompute. The function is written and tested; it needs a trigger and a writer.
+6. **Transcribe the remaining seed data** — factory loads, cartridges and suppressors
+   (NEEDS_CHAD 8, 9, 10). The pipeline validates and rejects, so this is safe grunt work.
+7. **Attorney review of `/legal/*`** before any tester sees it (NEEDS_CHAD 6).
+8. **Verify the aerodynamic jump formula** against Litz before considering turning it on
+   (NEEDS_CHAD 4b).
+9. **Replace the placeholder brand assets** (NEEDS_CHAD 5) and re-run `node scripts/gen-icons.mjs`.
+10. **Run Lighthouse on a real mobile device** against a production deploy. The app is built for it
+    — PWA manifest, service worker, offline calculator — but the score has not been measured on
+    real hardware, only reasoned about.
+
+## Definition of Done, walked honestly
+
+| Criterion                                                                                                        | Verdict                                                                                                                               |
+| ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Guest opens the site on a phone, picks a load, enters conditions, gets a 0–1,200 yd solution in under 30 seconds | **Yes.** Covered by an end-to-end test on a Pixel 7 viewport; the calculator solves on load with no input.                            |
+| Engine passes all §5.8 tests; reference harness skips cleanly until filled                                       | **Yes.** 186 engine tests; the reference harness skips with the fixture empty.                                                        |
+| Logged-in user creates rifle → load → suppressor, toggles suppressed, prints a DOPE card in 3 formats            | **Partly.** All of it works as a guest, and PDFs are rendered to real bytes in all three formats by test. "Logged-in" needs accounts. |
+| User logs a session, sees their stats, and it lands in aggregates server-side                                    | **Partly.** Logging and personal stats work; the server-side half needs the backend.                                                  |
+| Field aggregates compute correctly with outlier handling, CI, user caps — hidden while the flag is off           | **Yes.** 44 tests on the core; the flag gate is enforced in row-level security and tested.                                            |
+| Compatibility checker returns pass/warn/fail/unknown and never passes on missing data                            | **Yes.** 44 tests, including one per missing field.                                                                                   |
+| Every seed row has a source and verified flag; unverified data is visibly badged                                 | **Yes.** `source_url` is `NOT NULL`; nothing ships verified; the library badges every row.                                            |
+| RLS verified by test. Data export and account deletion work                                                      | **Yes** for RLS (real Postgres, real policies) and for export. Deletion is a local wipe — there is no account to delete yet.          |
+| Deployed-ready to Vercel; README and `.env.example` complete                                                     | **Ready, not deployed.** Settings are in the README; no project was created, by request.                                              |
+| `HANDOFF.md` written honestly, including what is shaky                                                           | This document.                                                                                                                        |
+
+The two genuinely shaky things, stated plainly: **the engine has never been checked against another
+solver**, and **the drag tables were typed in by hand**. Both are cheap to resolve and both are at
+the top of the list above.

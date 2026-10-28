@@ -221,3 +221,10 @@ One line each: **decision** — reason — how to reverse.
 - **Delete-everything is a local wipe behind a confirmation** — with no account there is nothing server-side to delete, and the button says exactly that rather than implying more — n/a.
 - **`useEntitlement()` exists and returns true for everything** — every beta user is a `founder`, but the gating is already threaded through the UI so Phase 7's successor changes one hook, not every call site — n/a.
 - **No fake sign-in page** — auth needs a real Supabase project and Google credentials (NEEDS_CHAD 1, 2). The typed clients, the RLS policies and the profile-creation trigger are built and tested; shipping a sign-in form that cannot sign anyone in would be worse than its absence — n/a.
+
+## Phase 8 — Hardening & handoff
+
+- **End-to-end tests are Chromium-only and deliberately few** — they exist to catch a page that will not render or a flow that silently breaks, not to re-test physics that 489 unit tests already cover in under two seconds — add browsers to `playwright.config.ts` if a rendering bug ever proves browser-specific.
+- **They run against a production build in demo mode** — that is exactly how a beta tester meets the app: no backend, no account, localStorage only — n/a.
+- **Contrast was measured rather than eyeballed, and the palette changed as a result** — `ink-700` was being used for informative help text at 2.4:1, well below AA. It could not simply be lightened without making it lighter than `ink-500` and inverting the scale, so the _usage_ moved: informative text is now `ink-500` (4.6:1) and `ink-700` survives only on disabled controls, which WCAG exempts. `fail-500` was lightened from `#b4544a` to `#ce7268` so error text clears 4.5:1 — re-run the contrast check in the Phase 8 notes before changing either.
+- **No Lighthouse score is claimed** — it has not been run on real hardware against a real deploy, and quoting a locally simulated number would be the kind of confident-looking wrong figure this product exists to avoid — measure it after the first deploy.

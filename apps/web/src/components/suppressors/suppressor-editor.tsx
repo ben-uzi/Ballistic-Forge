@@ -101,7 +101,7 @@ export function SuppressorEditor({
             placeholder="5/8x24"
             {...text('threadPitch')}
           />
-          <p className="text-xs text-ink-700">
+          <p className="text-xs text-ink-500">
             For a direct-thread can, the thread it screws onto.
           </p>
         </div>
@@ -144,7 +144,7 @@ export function SuppressorEditor({
               );
             }}
           />
-          <p className="text-xs text-ink-700">
+          <p className="text-xs text-ink-500">
             Semicolon separated, exactly as the manufacturer lists them.
           </p>
         </div>
@@ -163,7 +163,7 @@ export function SuppressorEditor({
               );
             }}
           />
-          <p className="text-xs text-ink-700">
+          <p className="text-xs text-ink-500">
             Copy it word for word. It is shown verbatim and never interpreted.
           </p>
         </div>

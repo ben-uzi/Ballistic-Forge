@@ -39,7 +39,7 @@ export function Field({
       {error ? (
         <p className="text-xs text-fail-500">{error}</p>
       ) : help ? (
-        <p className="text-xs text-ink-700">{help}</p>
+        <p className="text-xs text-ink-500">{help}</p>
       ) : null}
     </div>
   );

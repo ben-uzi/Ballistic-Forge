@@ -156,7 +156,7 @@ export default function FieldPage(): ReactElement {
                 </LineChart>
               </ResponsiveContainer>
             </div>
-            <p className="mt-2 text-xs text-ink-700">
+            <p className="mt-2 text-xs text-ink-500">
               One point per session. A drift downwards over a season is usually throat erosion or
               the weather, not the ammunition.
             </p>

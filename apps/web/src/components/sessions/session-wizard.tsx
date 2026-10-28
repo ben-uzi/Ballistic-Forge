@@ -219,7 +219,7 @@ export function SessionWizard(): ReactElement {
                   .filter((entry) => entry.archived !== true)
                   .map((entry) => ({ value: entry.id, label: entry.name }))}
               />
-              <p className="text-xs text-ink-700">
+              <p className="text-xs text-ink-500">
                 Leave as none if you shot it bare. Log both strings in one session and the
                 suppressor delta works itself out.
               </p>
@@ -244,7 +244,7 @@ export function SessionWizard(): ReactElement {
                 }}
                 options={CHRONO_OPTIONS}
               />
-              <p className="text-xs text-ink-700">
+              <p className="text-xs text-ink-500">
                 Used to weight your data against everyone else&rsquo;s. Say &ldquo;not
                 recorded&rdquo; rather than guessing.
               </p>
@@ -296,7 +296,7 @@ export function SessionWizard(): ReactElement {
                   set('regionCoarse', event.target.value === '' ? undefined : event.target.value);
                 }}
               />
-              <p className="text-xs text-ink-700">
+              <p className="text-xs text-ink-500">
                 A state or region only. Never an address, a range name or coordinates.
               </p>
             </div>
@@ -400,7 +400,7 @@ export function SessionWizard(): ReactElement {
         )}
       </div>
 
-      <p className="text-center text-xs text-ink-700">
+      <p className="text-center text-xs text-ink-500">
         Saved as a draft in this browser as you go.
       </p>
     </div>
@@ -443,7 +443,7 @@ function StringsStep({
         <Plus aria-hidden="true" />
         Add another string
       </Button>
-      <p className="text-xs text-ink-700">
+      <p className="text-xs text-ink-500">
         A suppressed and an unsuppressed string in the same session is how a velocity delta gets
         measured properly.
       </p>
@@ -517,7 +517,7 @@ function StringCard({
               onChange({ ...string, velocitiesFps: importPastedVelocities(event.target.value) });
             }}
           />
-          <p className="text-xs text-ink-700">
+          <p className="text-xs text-ink-500">
             Paste or type them, separated however you like. Anything that is not a plausible
             velocity is ignored.
           </p>
@@ -556,7 +556,7 @@ function StringCard({
         )}
 
         {summary === null ? (
-          <p className="text-xs text-ink-700">No shots yet.</p>
+          <p className="text-xs text-ink-500">No shots yet.</p>
         ) : (
           <dl className="num grid grid-cols-4 gap-px overflow-hidden rounded-card border border-gunmetal-700 bg-gunmetal-700 text-center">
             <Stat label="Shots" value={String(summary.n)} />
@@ -628,7 +628,7 @@ function ReviewStep({ session }: { readonly session: StoredSession }): ReactElem
 function Stat({ label, value }: { readonly label: string; readonly value: string }): ReactElement {
   return (
     <div className="bg-gunmetal-850 px-2 py-2">
-      <dt className="text-[0.625rem] uppercase tracking-wide text-ink-700">{label}</dt>
+      <dt className="text-[0.625rem] uppercase tracking-wide text-ink-500">{label}</dt>
       <dd className="text-sm text-ink-100">{value}</dd>
     </div>
   );

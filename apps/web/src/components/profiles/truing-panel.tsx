@@ -71,7 +71,7 @@ export function TruingPanel({
               { value: 'bc-scale', label: 'Ballistic coefficient' },
             ]}
           />
-          <p className="text-xs text-ink-700">
+          <p className="text-xs text-ink-500">
             {kind === 'muzzle-velocity'
               ? 'The usual choice. Best at mid range, where velocity dominates the drop.'
               : 'For long range, near the transonic region, once the velocity is already trusted.'}
@@ -111,7 +111,7 @@ export function TruingPanel({
               <>
                 <dl className="grid grid-cols-2 gap-3 text-sm">
                   <div>
-                    <dt className="text-xs uppercase tracking-wide text-ink-700">
+                    <dt className="text-xs uppercase tracking-wide text-ink-500">
                       Your profile predicted
                     </dt>
                     <dd className="num text-ink-100">
@@ -121,7 +121,7 @@ export function TruingPanel({
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs uppercase tracking-wide text-ink-700">You dialled</dt>
+                    <dt className="text-xs uppercase tracking-wide text-ink-500">You dialled</dt>
                     <dd className="num text-ink-100">
                       {String(observed)} {UNIT_LABEL[form.units.angular]}
                       {error === null ? null : (
@@ -184,7 +184,7 @@ export function TruingPanel({
                 >
                   Save to this load
                 </Button>
-                <p className="text-xs text-ink-700">
+                <p className="text-xs text-ink-500">
                   Your original figures are kept. Truing from a single group carries that
                   group&rsquo;s error with it — confirm at another distance before trusting it.
                 </p>

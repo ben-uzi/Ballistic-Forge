@@ -117,7 +117,7 @@ export default function SuppressorsPage(): ReactElement {
                   Unverified
                 </Badge>
               )}
-              <ChevronRight className="size-4 shrink-0 text-ink-700" aria-hidden="true" />
+              <ChevronRight className="size-4 shrink-0 text-ink-500" aria-hidden="true" />
             </Link>
           </li>
         ))}

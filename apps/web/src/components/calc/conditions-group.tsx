@@ -138,7 +138,7 @@ export function ConditionsGroup({ form, set, setUnits, issues }: GroupProps): Re
               },
             ]}
           />
-          <p className="text-xs text-ink-700">
+          <p className="text-xs text-ink-500">
             {form.pressureType === 'station'
               ? 'A Kestrel reads station pressure. Altitude is then only used for the density-altitude readout.'
               : 'Weather apps and METARs report barometric (sea-level) pressure. Your altitude is used to correct it.'}
@@ -204,7 +204,7 @@ export function ConditionsGroup({ form, set, setUnits, issues }: GroupProps): Re
               if (next !== undefined) set('windFromClock', next);
             }}
           />
-          <p className="text-xs text-ink-700">
+          <p className="text-xs text-ink-500">
             The clock position the wind is coming from, as you face the target. 12 is a headwind, 3
             comes from your right.
           </p>
@@ -336,7 +336,7 @@ function Toggle({
     <label className="flex cursor-pointer items-start justify-between gap-4">
       <span className="flex flex-col gap-0.5">
         <span className="text-sm font-medium text-ink-100">{label}</span>
-        <span className="text-xs text-ink-700">{description}</span>
+        <span className="text-xs text-ink-500">{description}</span>
       </span>
       <Switch checked={checked} onCheckedChange={onChange} aria-label={label} className="mt-1" />
     </label>

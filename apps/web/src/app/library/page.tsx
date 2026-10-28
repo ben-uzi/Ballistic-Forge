@@ -55,7 +55,7 @@ export default function LibraryPage(): ReactElement {
           <Label htmlFor="lib-search">Search</Label>
           <div className="relative flex items-center">
             <Search
-              className="pointer-events-none absolute left-3 size-4 text-ink-700"
+              className="pointer-events-none absolute left-3 size-4 text-ink-500"
               aria-hidden="true"
             />
             <Input
@@ -179,7 +179,7 @@ export default function LibraryPage(): ReactElement {
         </div>
       )}
 
-      <p className="text-xs text-ink-700">
+      <p className="text-xs text-ink-500">
         Generated {LIBRARY_GENERATED_AT}. Something wrong?{' '}
         <Link href="/feedback" className="text-forge-500 underline">
           Suggest a correction

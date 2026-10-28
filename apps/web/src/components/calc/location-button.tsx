@@ -58,7 +58,7 @@ export function LocationButton({
         <MapPin aria-hidden="true" />
         {state === 'working' ? 'Locating…' : 'Use my location'}
       </Button>
-      <p className="text-xs text-ink-700">
+      <p className="text-xs text-ink-500">
         {state === 'denied'
           ? 'Location permission was declined. Enter latitude and altitude by hand.'
           : state === 'unsupported'

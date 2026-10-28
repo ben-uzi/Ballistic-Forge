@@ -141,7 +141,7 @@ function MeasureChart({
       <figcaption className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
         <span className="text-sm font-semibold text-ink-300">
           {spec.label}{' '}
-          <span className="font-normal text-ink-700">
+          <span className="font-normal text-ink-500">
             ({spec.axisLabel(units)} vs {UNIT_LABEL[units.range]})
           </span>
         </span>
@@ -244,7 +244,7 @@ function ChartTooltip({
               ) : null}
               <span className="num ml-auto text-ink-100">
                 {typeof entry.value === 'number' ? entry.value.toFixed(spec.digits) : '—'}{' '}
-                <span className="text-ink-700">{spec.axisLabel(units)}</span>
+                <span className="text-ink-500">{spec.axisLabel(units)}</span>
               </span>
             </li>
           );

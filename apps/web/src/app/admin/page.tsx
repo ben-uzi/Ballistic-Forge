@@ -138,7 +138,7 @@ function FlagTable(): ReactElement {
             </div>
           ))}
         </dl>
-        <p className="mt-3 border-t border-gunmetal-700 pt-3 text-xs text-ink-700">
+        <p className="mt-3 border-t border-gunmetal-700 pt-3 text-xs text-ink-500">
           These are the compile-time defaults. Once a database is connected the{' '}
           <code>app_flags</code> table is the source of truth, and the reveal gate is enforced by
           row-level security rather than by this page.
@@ -151,7 +151,7 @@ function FlagTable(): ReactElement {
 function Stat({ label, value }: { readonly label: string; readonly value: string }): ReactElement {
   return (
     <div className="bg-gunmetal-850 px-3 py-3">
-      <dt className="text-[0.625rem] uppercase tracking-wide text-ink-700">{label}</dt>
+      <dt className="text-[0.625rem] uppercase tracking-wide text-ink-500">{label}</dt>
       <dd className="mt-0.5 text-lg text-ink-100">{value}</dd>
     </div>
   );

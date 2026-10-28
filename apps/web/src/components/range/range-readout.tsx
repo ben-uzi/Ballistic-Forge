@@ -140,7 +140,7 @@ export function RangeReadout(): ReactElement {
           />
           <div className="text-center">
             <p className="num text-5xl font-bold leading-none text-ink-100">{String(distance)}</p>
-            <p className="mt-1 text-xs uppercase tracking-wide text-ink-700">
+            <p className="mt-1 text-xs uppercase tracking-wide text-ink-500">
               {UNIT_LABEL[units.range]}
             </p>
           </div>
@@ -261,7 +261,7 @@ export function RangeReadout(): ReactElement {
             aria-label="Suppressed"
           />
         </div>
-        <p className="text-xs text-ink-700">
+        <p className="text-xs text-ink-500">
           {haveDelta
             ? `${delta.explanation} ${delta.mvDeltaFps === null ? '' : `${delta.mvDeltaFps > 0 ? '+' : ''}${String(delta.mvDeltaFps)} fps`}`
             : delta.explanation}
@@ -273,7 +273,7 @@ export function RangeReadout(): ReactElement {
         )}
       </div>
 
-      <p className="text-center text-xs text-ink-700">
+      <p className="text-center text-xs text-ink-500">
         Estimates. Confirm with live fire before you trust them.
       </p>
     </div>
@@ -320,7 +320,7 @@ function BigReadout({
 }): ReactElement {
   return (
     <div className="rounded-card border border-gunmetal-700 bg-gunmetal-950 p-4 text-center">
-      <p className="text-xs uppercase tracking-wide text-ink-700">{label}</p>
+      <p className="text-xs uppercase tracking-wide text-ink-500">{label}</p>
       <p className="num mt-1 flex items-baseline justify-center gap-1 text-5xl font-bold leading-none text-forge-500">
         {value}
         {direction === null ? null : <span className="text-2xl text-ink-300">{direction}</span>}
@@ -340,7 +340,7 @@ function SmallStat({
 }): ReactElement {
   return (
     <div className="bg-gunmetal-850 px-2 py-2">
-      <dt className="text-[0.625rem] uppercase tracking-wide text-ink-700">{label}</dt>
+      <dt className="text-[0.625rem] uppercase tracking-wide text-ink-500">{label}</dt>
       <dd className="text-sm text-ink-100">{value}</dd>
     </div>
   );

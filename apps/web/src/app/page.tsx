@@ -67,7 +67,7 @@ export default function HomePage(): ReactElement {
                   className={
                     pillar.ready
                       ? 'rounded-full border border-pass-500/40 bg-pass-500/10 px-2 py-0.5 text-[0.625rem] uppercase tracking-wide text-pass-500'
-                      : 'rounded-full border border-gunmetal-700 px-2 py-0.5 text-[0.625rem] uppercase tracking-wide text-ink-700'
+                      : 'rounded-full border border-gunmetal-700 px-2 py-0.5 text-[0.625rem] uppercase tracking-wide text-ink-500'
                   }
                 >
                   {pillar.status}
