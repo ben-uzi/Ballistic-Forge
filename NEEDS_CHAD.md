@@ -71,6 +71,45 @@ built to work around every item here (demo mode, mocks, flags) until it's resolv
 - **Why:** confirms the Garmin Xero and LabRadar CSV parsers against real data.
 - **Steps:** export one session from each device and drop the files into `apps/web/test/fixtures/chrono/`.
 
+### 8. Factory load data (~29 rows still needed)
+
+- **Why:** the factory-vs-field comparison is one of the three pillars, and it needs advertised
+  muzzle velocity _with the test barrel length_ for each load. Only one row is seeded so far
+  (Hornady 6.5 Creedmoor 140 gr ELD Match, 2,710 fps from a 24 in barrel, SKU 81500).
+- **Why it stopped there:** each load needs its own product page transcribed; there is no single
+  published table covering them, and guessing is a hard line.
+- **Steps:** for each load, open the manufacturer's ammunition page, and add a row to
+  `supabase/seed/factory_loads.csv` with `advertised_mv_fps`, `test_barrel_in` and the page URL as
+  `source_url`. The cartridge must already exist in `cartridges.csv`. Then run `pnpm seed`; it
+  validates every row and will reject anything inconsistent (for example a bullet diameter that
+  does not match its cartridge).
+
+### 9. Suppressor data (~15 rows needed)
+
+- **Why:** The Can — the compatibility checker and the suppressor pages — has no data at all.
+  `supabase/seed/suppressors.csv` currently holds only its header.
+- **Why it stopped there:** suppressor manufacturer sites refuse automated requests
+  (deadairsilencers.com returned 404, silencerco.com returned 403), so nothing could be sourced.
+  Per the brief, nothing was invented in their place.
+- **Steps:** for each model, from the manufacturer's own spec page, fill in `mount_type`
+  (`direct_thread`, `hub_1375x24`, `asr`, `keymo`, `omega_qd`, `proprietary_qd`, `other`),
+  `thread_pitch`, `bore_diameter_in`, `max_rated_cartridge`, `rated_cartridges`
+  (semicolon-separated), `length_in`, `diameter_in`, `weight_oz`, and `min_barrel_length_note`
+  **quoted verbatim**. Leave anything the page does not state blank — the checker is built to
+  answer "unknown", and a blank is safer than a guess. Then run `pnpm seed`.
+
+### 10. Cartridge reference data (~9 rows needed)
+
+- **Why:** only 6.5 Creedmoor is seeded, and factory loads cannot be added for a cartridge that is
+  not in the table.
+- **Steps:** add rows to `supabase/seed/cartridges.csv` for .223 Rem, .308 Win, 6mm Creedmoor,
+  6.5 PRC, .300 Win Mag, 300 PRC, 7mm PRC, .338 Lapua and .224 Valkyrie, each with
+  `bullet_diameter_in` and a `source_url`. SAAMI's Z299.4 standard is the authoritative source for
+  maximum average pressure (the `saami_max_pressure_psi` column, optional) — it is a large PDF and
+  was not transcribed during the build.
+
 ## Resolved
 
-_None yet._
+- **Local database for testing** — resolved without needing anything from you. The RLS and schema
+  tests run against PGlite, a real Postgres compiled to WebAssembly, so `pnpm test` exercises the
+  actual migrations and policies with no Docker and no Supabase project.

@@ -121,3 +121,45 @@ One line each: **decision** — reason — how to reverse.
 - **The waitlist endpoint logs to the server and tells the caller it was _not_ persisted while in demo mode** — a green tick over a dropped signup is worse than a blunt message — n/a (Phase 3 adds the insert).
 - **The pilot is `noindex`** — firearm owners are privacy-sensitive and the beta is invite-only — remove `robots` from the root metadata at launch.
 - **"Use my location" reads latitude only, rounds it to 0.1° before it reaches state, and never stores or transmits it** — enough for Coriolis, useless for identifying a shooting position (brief §10.4) — n/a.
+
+## Phase 3 — Data model & Supabase
+
+### Schema
+
+- **Five ordered plain-SQL migrations (`0001_foundation` → `0005_rls_policies`), numbered and sequence-checked by the loader** — readable, reviewable, and applicable by the Supabase CLI or by hand — renumber and update `loadMigrations`.
+- **No Postgres extensions at all** — `gen_random_uuid()` has been core since PG13, and the only extension the schema had reached for (`pgcrypto`) was unused; dropping it also let the test harness run on PGlite — add `create extension` back if a future column needs one.
+- **Helper functions that read tables (`is_admin`, `field_data_is_public`) live in the RLS migration, not the first one** — SQL-language function bodies are validated at creation, so they cannot be declared before the tables they query — n/a.
+- **`is_admin()` is SECURITY DEFINER with a pinned `search_path`** — a policy on `profiles` that calls it would otherwise recurse into itself; definer rights bypass RLS and the pinned path stops them being redirected at a shadowed table — n/a.
+- **Reference rows have `source_url NOT NULL`** — the brief's hard line against fabricated data, enforced by the database rather than by convention — n/a.
+- **Bullets must carry at least one BC (`bullets_has_a_bc`)** — a bullet with no ballistic coefficient cannot be solved with, so it belongs in `to_verify.csv` — n/a.
+- **`cardinality(velocities_fps) >= 1`, not `array_length(...) >= 1`** — `array_length` of an empty array is NULL and a NULL CHECK expression passes, so the original constraint silently allowed empty shot strings. Caught by running the migrations in the test harness — n/a.
+- **Suppressor specs stay NULL when unknown** — the compatibility checker must be able to answer "unknown" rather than infer a pass — n/a.
+- **No serial-number column anywhere, asserted by a test that greps `information_schema`** — the brief forbids the field; a test stops it reappearing — n/a.
+
+### Row-level security
+
+- **Every table has RLS enabled and at least one policy, both asserted by test** — a table with RLS and no policy is invisible; one without RLS is wide open. The tests catch either mistake — n/a.
+- **Policies use `(select auth.uid())` rather than a bare call** — the planner then evaluates it once per statement instead of once per row — n/a.
+- **Admins can read user sessions for the review queue but cannot write them** — the admin policies are SELECT-only, so an admin editing someone's data fails the owner policy's USING clause — n/a.
+- **The field-data reveal is enforced in the database** (`field_aggregates` / `suppressor_deltas` select policies call `field_data_is_public()`) — a UI bug can then never leak community aggregates early — flip the `app_flags` row.
+- **A trigger stops users changing their own `role` or `flagged`, but allows it when `auth.uid()` is null** — that null case is a migration, the SQL editor or the service role, and RLS already keeps anon off the table, so it is a trusted server context. Without the exemption even the service role could not promote an admin — n/a.
+
+### Testing
+
+- **The RLS suite runs against PGlite (real Postgres compiled to WASM) instead of skipping without a local Supabase** — the brief allowed it to skip; running the actual migrations and actual policies on every `pnpm test` is strictly better, needs no Docker, and already caught two real defects — point `createTestDb` at a connection string if a full Supabase is ever available in CI.
+- **The harness stands up only what Supabase itself provides** — the `auth` schema, `auth.uid()`, and the `anon`/`authenticated`/`service_role` roles. Nothing under test is faked — n/a.
+- **`TABLES` and `DEFAULTED_COLUMNS` in the TypeScript types are checked against `information_schema` by test** — hand-maintained types cannot silently drift from the migrations — regenerate with `supabase gen types` once a project exists, and keep the drift tests.
+
+### Types and client
+
+- **Database row types are object _type aliases_, not interfaces** — supabase-js constrains a schema's tables to `Record<string, unknown>`; interfaces have no implicit index signature, fail that constraint, and silently degrade every `Insert` to `never`. ESLint's `consistent-type-definitions` is disabled for that one file with the reason inline — n/a.
+- **`Insert` makes nullable and database-defaulted columns optional, driven by a single `DEFAULTED_COLUMNS` list** — matches what Postgres will actually accept, and the list is validated against `information_schema` in both directions — n/a.
+- **`getBrowserClient()` / `getServerClient()` return null in demo mode rather than throwing** — the calculator must keep working with no backend, and a module-scope throw would take the page down — n/a.
+
+### Seed pipeline
+
+- **`pnpm seed` emits `supabase/seed/seed.sql` rather than connecting to a database** — it works with no project configured, produces a reviewable diff, and can be executed against the test Postgres; a test asserts the committed `seed.sql` matches the CSVs — n/a.
+- **Generated SQL resolves foreign keys with inline sub-selects and `on conflict do nothing`** — no UUIDs to invent, and re-applying the file is a no-op — n/a.
+- **Hand-rolled CSV reader instead of a dependency** — one consumer, a fixed dialect, and the behaviour that matters (quoted commas, escaped quotes, embedded newlines) is sixty lines and directly tested — n/a.
+- **Seed CLI runs on Node's native type stripping, so `packages/db` sets `allowImportingTsExtensions` and `erasableSyntaxOnly`** — avoids adding `tsx` (whose esbuild postinstall pnpm's supply-chain policy blocks), and the compiler now rejects the non-erasable syntax that would break it — add a runner dependency if the CLI grows.
+- **Only 29 bullets and 1 factory load are seeded, and 0 suppressors** — every value was transcribed from the manufacturer's own published page (Hornady's BC table, Berger's bullet reference chart, Hornady's ammunition page). Suppressor manufacturer sites return 403/404 to automated requests, so nothing was seeded rather than guessed — see NEEDS_CHAD 8 and 9.

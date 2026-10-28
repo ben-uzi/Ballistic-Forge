@@ -1,0 +1,23 @@
+{
+  "name": "@bf/db",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Ballistic Forge database types, shared Zod schemas, and the seed loader.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./schemas": "./src/schemas.ts",
+    "./types": "./src/types.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.12"
+  }
+}

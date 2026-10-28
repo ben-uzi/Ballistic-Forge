@@ -6,7 +6,9 @@ _Running draft. Written in full at the end of Phase 8 (see `docs/BUILD_BRIEF.md`
 
 - Phase 0 (scaffold) — complete.
 - Phase 1 (engine) — complete. 143 tests; 99.8% line / 92.9% branch coverage.
-- Phase 2 (web shell + calculator) — complete. 71 further tests. See `PLAN.md`.
+- Phase 2 (web shell + calculator) — complete. 71 further tests.
+- Phase 3 (Supabase schema, RLS, seed pipeline) — complete. 72 further tests, run against a real
+  Postgres. Seed data is partial on purpose: see NEEDS_CHAD 8-10. See `PLAN.md`.
 
 ## Running it
 
@@ -14,7 +16,11 @@ _Running draft. Written in full at the end of Phase 8 (see `docs/BUILD_BRIEF.md`
 pnpm install
 pnpm dev            # http://localhost:3000 — the calculator works with no env vars
 pnpm gate           # typecheck + lint + test, the bar every phase must clear
+pnpm seed           # validate supabase/seed/*.csv and regenerate seed.sql
 ```
+
+The database tests need no Docker and no Supabase project: they apply the real migrations to
+PGlite (Postgres compiled to WebAssembly) and exercise the real row-level security policies.
 
 With no `.env.local` the app is in **demo mode**: the calculator is fully functional, profiles are
 stored in the browser, and there are no accounts. `apps/web/.env.example` documents what to fill in
@@ -74,3 +80,25 @@ The web app never calls the engine directly from a component. The seam is
 
 Persistence goes through `getStore()` (`lib/store/`), which returns the guest `LocalStore` today and
 a `SupabaseStore` once the backend exists.
+
+## Database quick reference
+
+The schema lives in `supabase/migrations` as five ordered plain-SQL files. `@bf/db` holds the
+TypeScript row types, the shared Zod schemas, and the seed pipeline.
+
+| Thing                      | Where                                             |
+| -------------------------- | ------------------------------------------------- |
+| Schema                     | `supabase/migrations/0001…0005`                   |
+| Row types, `Database`      | `packages/db/src/types.ts`                        |
+| Zod schemas (seed + forms) | `packages/db/src/schemas.ts`                      |
+| Seed loader                | `packages/db/src/cli/seed.ts`, run as `pnpm seed` |
+| Seed data                  | `supabase/seed/*.csv` → generated `seed.sql`      |
+| Typed clients              | `apps/web/src/lib/supabase/{client,server}.ts`    |
+
+Row-level security in one line: user data is owner-only, reference data is world-readable and
+admin-writable, and community aggregates are invisible to non-admins until the `field_data_public`
+flag is switched on — enforced by policy, not by the UI.
+
+**Hand-maintained types.** `supabase gen types` needs a running project, so `packages/db/src/types.ts`
+is written by hand. Two tests compare it against `information_schema` (table list and defaulted
+columns), so it cannot drift silently. Regenerate properly once a project exists.

@@ -1,14 +1,9 @@
+import { WaitlistInput } from '@bf/db/schemas';
 import { NextResponse } from 'next/server';
-import { z } from 'zod';
 import { hasSupabase } from '@/lib/env';
+import { getServerClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
-
-const WaitlistRequest = z.object({
-  email: z.email().max(320),
-  /** Free text: what they shoot. Optional and never required. */
-  note: z.string().max(500).optional(),
-});
 
 export type WaitlistResponse =
   | { readonly ok: true; readonly stored: 'supabase' | 'local' }
@@ -20,7 +15,7 @@ export type WaitlistResponse =
  * With no Supabase project configured the app is in demo mode, so the address
  * is written to the server log and the caller is told plainly that it was
  * *not* persisted — better than a green tick over a dropped signup
- * (NEEDS_CHAD 1). The Supabase insert lands with the schema in Phase 3.
+ * (NEEDS_CHAD 1).
  */
 export async function POST(request: Request): Promise<NextResponse<WaitlistResponse>> {
   let body: unknown;
@@ -30,7 +25,7 @@ export async function POST(request: Request): Promise<NextResponse<WaitlistRespo
     return NextResponse.json({ ok: false, error: 'Expected a JSON body.' }, { status: 400 });
   }
 
-  const parsed = WaitlistRequest.safeParse(body);
+  const parsed = WaitlistInput.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
       { ok: false, error: 'That does not look like an email address.' },
@@ -44,8 +39,27 @@ export async function POST(request: Request): Promise<NextResponse<WaitlistRespo
     return NextResponse.json({ ok: true, stored: 'local' });
   }
 
-  return NextResponse.json(
-    { ok: false, error: 'The waitlist table arrives with the database in Phase 3.' },
-    { status: 503 },
-  );
+  const supabase = await getServerClient();
+  if (supabase === null) {
+    return NextResponse.json(
+      { ok: false, error: 'The waitlist is not reachable right now.' },
+      { status: 503 },
+    );
+  }
+
+  const { error } = await supabase.from('waitlist').insert({
+    email: parsed.data.email.toLowerCase(),
+    note: parsed.data.note ?? null,
+  });
+
+  // 23505 is unique_violation: already signed up, which is a success from the
+  // caller's point of view and must not leak who is on the list.
+  if (error !== null && error.code !== '23505') {
+    return NextResponse.json(
+      { ok: false, error: 'That did not go through. Try again in a moment.' },
+      { status: 502 },
+    );
+  }
+
+  return NextResponse.json({ ok: true, stored: 'supabase' });
 }

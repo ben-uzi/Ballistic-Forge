@@ -13,7 +13,7 @@ as `phase-N: <summary>`. Decisions go in `DECISIONS.md`, blockers in `NEEDS_CHAD
 | 0     | Monorepo scaffold, tooling, tracking docs           | —          | ☑      |
 | 1     | `@bf/engine` — physics, test-first                  | 0          | ☑      |
 | 2     | Web shell + calculator (guest mode, no env vars)    | 1          | ☑      |
-| 3     | Supabase schema, RLS, seed pipeline                 | 0          | ☐      |
+| 3     | Supabase schema, RLS, seed pipeline                 | 0          | ☑      |
 | 4     | Profiles, DOPE cards (PDF), Range mode              | 2, 3       | ☐      |
 | 5     | The Can — suppressor toggle + compatibility checker | 4          | ☐      |
 | 6     | The Field — session logging + aggregation           | 3, 4       | ☐      |
@@ -159,23 +159,23 @@ Pure functions only — no React, DOM, or network. All internal math in SI.
 
 ## Phase 3 — Data model & Supabase §7
 
-- [ ] `supabase/` initialized for Supabase CLI; migrations in `supabase/migrations`
-- [ ] Reference tables (public read, admin write): `manufacturers`, `cartridges`, `bullets`, `factory_loads`, `suppressors`, `mount_types` enum
-- [ ] User tables (owner-only RLS): `profiles`, `rifles` (**no serial number field**), `loads`, `rifle_suppressors`, `sessions`, `shot_strings`, `drop_observations`, `poi_shift_observations`, `entitlements`, `events`
-- [ ] Aggregate tables: `field_aggregates`, `suppressor_deltas` (read gated by flag / admin)
-- [ ] `app_flags` seeded: `field_data_public=false`, `field_reveal_threshold_shots=50000`, `min_sessions_to_display=5`, `min_users_to_display=3`
-- [ ] Also: `waitlist`, `feedback`, `corrections` (library suggestions), verification audit columns (`verified_by`, `verified_at`)
-- [ ] UUID PKs, `created_at/updated_at` triggers, soft deletes where noted
-- [ ] Generated TS types + typed client (server + browser)
-- [ ] Shared Zod schemas (forms + API) in a `packages/schemas` or `apps/web/lib/schemas`
-- [ ] Seed pipeline: `scripts/seed.ts` reads `supabase/seed/*.csv`, validates with Zod (diameter vs cartridge, G1 BC 0.05–1.2, sane weights), rejects rows without `source_url`
-- [ ] Seed CSVs from manufacturer public spec pages only:
-  - [ ] ~40 bullets (6.5 CM, .308, .223/5.56, 6mm CM, .300 WM, 300 PRC, 6.5 PRC, .224 Valk, .338 LM)
-  - [ ] ~30 factory loads (advertised MV + test barrel)
-  - [ ] ~15 suppressors (mount types, rated calibers)
-  - [ ] Unreachable/unconfirmable rows → `to_verify.csv` + NEEDS_CHAD (never guessed)
-- [ ] RLS test: user A cannot read user B's sessions (runs against local Supabase; skips without it)
-- [ ] **Gate** → `phase-3: supabase schema + seed`
+- [x] `supabase/migrations` holds the schema as five ordered, plain-SQL migrations
+- [x] Reference tables (public read, admin write): `manufacturers`, `cartridges`, `bullets`, `factory_loads`, `suppressors`, `mount_type` enum
+- [x] User tables (owner-only RLS): `profiles`, `rifles` (**no serial number field** — asserted by test), `loads`, `rifle_suppressors`, `sessions`, `shot_strings`, `drop_observations`, `poi_shift_observations`, `entitlements`, `events`
+- [x] Aggregate tables: `field_aggregates`, `suppressor_deltas` (read gated by `field_data_is_public()` in the database, not the UI)
+- [x] `app_flags` seeded: `field_data_public=false`, `field_reveal_threshold_shots=50000`, `min_sessions_to_display=5`, `min_users_to_display=3`
+- [x] Also: `waitlist`, `feedback`, `corrections`, verification audit columns (`verified_by`, `verified_at`)
+- [x] UUID PKs, `created_at/updated_at` triggers, soft deletes (`archived_at`) on rifles and loads
+- [x] TS types + typed client (browser, server, service role) in `@bf/db` and `apps/web/src/lib/supabase`
+- [x] Shared Zod schemas in `packages/db/src/schemas.ts` (seed validation + form contracts)
+- [x] Seed pipeline: `pnpm seed` validates `supabase/seed/*.csv` with Zod and emits idempotent `seed.sql`; rejects rows without `source_url`; cross-checks bullet diameter against its cartridge
+- [x] Seed CSVs from manufacturer public spec pages only:
+  - [x] 29 bullets (Hornady ELD Match line, Berger target/tactical lines) across .224, 6mm, 6.5mm, 7mm, .308 and .338
+  - [ ] ~30 factory loads — 1 sourced; the rest need page-by-page transcription (NEEDS_CHAD 8)
+  - [ ] ~15 suppressors — 0 sourced; manufacturer sites block automated access (NEEDS_CHAD 9)
+  - [x] Unreachable/unconfirmable rows → `to_verify.csv` + NEEDS_CHAD (never guessed)
+- [x] RLS test: user A cannot read user B's sessions — **runs on every `pnpm test`** against an in-process Postgres (PGlite), rather than skipping without a local Supabase
+- [x] **Gate** → `phase-3: supabase schema + seed`
 
 ## Phase 4 — Profiles, DOPE cards, Range mode §8
 

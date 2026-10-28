@@ -14,7 +14,8 @@
     "test": "pnpm -r --if-present test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "gate": "pnpm typecheck && pnpm lint && pnpm test"
+    "gate": "pnpm typecheck && pnpm lint && pnpm test",
+    "seed": "node packages/db/src/cli/seed.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

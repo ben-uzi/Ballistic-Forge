@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "lib": ["ES2022"],
+    // The seed CLI runs under Node's native type stripping, which needs the
+    // real file path in every relative import.
+    "allowImportingTsExtensions": true,
+    // The seed CLI is executed by Node's strip-only type removal, which rejects
+    // enums, namespaces and parameter properties. Fail at compile time instead.
+    "erasableSyntaxOnly": true
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts", "vitest.config.ts"]
+}

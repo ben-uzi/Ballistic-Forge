@@ -1,0 +1,30 @@
+manufacturer,name,diameter_in,weight_gr,length_in,bc_g1,bc_g7,source_url,notes
+Hornady,22 cal 73 gr ELD Match,0.224,73,,0.398,0.200,https://www.hornady.com/bc,BC at Mach 2.25
+Hornady,22 cal 75 gr ELD Match,0.224,75,,0.467,0.235,https://www.hornady.com/bc,BC at Mach 2.25
+Hornady,22 cal 80 gr ELD Match,0.224,80,,0.485,0.244,https://www.hornady.com/bc,BC at Mach 2.25
+Hornady,22 cal 88 gr ELD Match,0.224,88,,0.545,0.274,https://www.hornady.com/bc,BC at Mach 2.25
+Hornady,6mm 108 gr ELD Match,0.243,108,,0.536,0.270,https://www.hornady.com/bc,BC at Mach 2.25
+Hornady,6.5mm 120 gr ELD Match,0.264,120,,0.486,0.245,https://www.hornady.com/bc,BC at Mach 2.25
+Hornady,6.5mm 130 gr ELD Match,0.264,130,,0.554,0.279,https://www.hornady.com/bc,BC at Mach 2.25
+Hornady,6.5mm 140 gr ELD Match,0.264,140,,0.646,0.326,https://www.hornady.com/bc,BC at Mach 2.25
+Hornady,6.5mm 147 gr ELD Match,0.264,147,,0.697,0.351,https://www.hornady.com/bc,BC at Mach 2.25
+Hornady,7mm 162 gr ELD Match,0.284,162,,0.670,0.338,https://www.hornady.com/bc,BC at Mach 2.25
+Hornady,7mm 180 gr ELD Match,0.284,180,,0.777,0.391,https://www.hornady.com/bc,BC at Mach 2.25
+Hornady,30 cal 155 gr ELD Match,0.308,155,,0.461,0.232,https://www.hornady.com/bc,BC at Mach 2.25
+Hornady,30 cal 168 gr ELD Match,0.308,168,,0.523,0.263,https://www.hornady.com/bc,BC at Mach 2.25
+Hornady,30 cal 178 gr ELD Match,0.308,178,,0.547,0.275,https://www.hornady.com/bc,BC at Mach 2.25
+Hornady,30 cal 208 gr ELD Match,0.308,208,,0.690,0.348,https://www.hornady.com/bc,BC at Mach 2.25
+Hornady,30 cal 225 gr ELD Match,0.308,225,,0.777,0.391,https://www.hornady.com/bc,BC at Mach 2.25
+Hornady,338 cal 285 gr ELD Match,0.338,285,,0.829,0.417,https://www.hornady.com/bc,BC at Mach 2.25
+Berger,22 cal 77 gr OTM Tactical,0.224,77,,0.374,0.192,https://bergerbullets.com/information/lines-and-designs/all-berger-bullets/,Part 22101
+Berger,22 cal 85.5 gr Long Range Hybrid Target,0.224,85.5,,0.524,0.268,https://bergerbullets.com/information/lines-and-designs/all-berger-bullets/,Part 22485
+Berger,6mm 105 gr Hybrid Target,0.243,105,,0.536,0.275,https://bergerbullets.com/information/lines-and-designs/all-berger-bullets/,Part 24433
+Berger,6mm 109 gr Long Range Hybrid Target,0.243,109,,0.568,0.292,https://bergerbullets.com/information/lines-and-designs/all-berger-bullets/,Part 24485
+Berger,6.5mm 140 gr Hybrid Target,0.264,140,,0.607,0.311,https://bergerbullets.com/information/lines-and-designs/all-berger-bullets/,Part 26414
+Berger,6.5mm 140 gr VLD Hunting,0.264,140,,0.600,0.307,https://bergerbullets.com/information/lines-and-designs/all-berger-bullets/,Part 26504
+Berger,6.5mm 153.5 gr Long Range Hybrid Target,0.264,153.5,,0.694,0.356,https://bergerbullets.com/information/lines-and-designs/all-berger-bullets/,Part 26486
+Berger,30 cal 185 gr VLD Target,0.308,185,,0.543,0.278,https://bergerbullets.com/information/lines-and-designs/all-berger-bullets/,Part 30413
+Berger,30 cal 200.20X gr Hybrid Target,0.308,200.2,,0.640,0.328,https://bergerbullets.com/information/lines-and-designs/all-berger-bullets/,Part 30417
+Berger,30 cal 215 gr Hybrid Target,0.308,215,,0.691,0.354,https://bergerbullets.com/information/lines-and-designs/all-berger-bullets/,Part 30429
+Berger,30 cal 230 gr Hybrid Target,0.308,230,,0.717,0.368,https://bergerbullets.com/information/lines-and-designs/all-berger-bullets/,Part 30430
+Berger,338 cal 300 gr Hybrid OTM Tactical,0.338,300,,0.822,0.421,https://bergerbullets.com/information/lines-and-designs/all-berger-bullets/,Part 33109

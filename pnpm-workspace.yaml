@@ -1,6 +1,7 @@
 packages:
   - packages/*
   - apps/*
+
 minimumReleaseAgeExclude:
   - '@typescript-eslint/eslint-plugin@8.72.1'
   - '@typescript-eslint/parser@8.72.1'

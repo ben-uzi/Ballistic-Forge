@@ -32,6 +32,17 @@ export default tseslint.config(
     languageOptions: { globals: globals.node },
   },
   {
+    // supabase-js constrains a schema's tables to `Record<string, unknown>`.
+    // Interfaces get no implicit index signature and fail that constraint, which
+    // silently degrades every Insert to `never` — so the generated-types idiom
+    // (object type aliases plus mapped-never members) is required in this file.
+    files: ['packages/db/src/types.ts'],
+    rules: {
+      '@typescript-eslint/consistent-type-definitions': 'off',
+      '@typescript-eslint/consistent-indexed-object-style': 'off',
+    },
+  },
+  {
     // The service worker is plain JS running in a worker global scope.
     files: ['apps/web/public/sw.js'],
     languageOptions: { globals: globals.serviceworker },
