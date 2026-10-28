@@ -193,3 +193,18 @@ One line each: **decision** — reason — how to reverse.
 - **Suppressor specs are optional everywhere, and the form says blanks are fine** — the checker reports "unknown" from a missing value and would report "pass" from a guessed one, so the UI must not pressure anyone into filling a box — n/a.
 - **The shared suppressor library ships empty** — manufacturer sites refuse automated requests, so rather than invent specifications the module works against suppressors the user enters themselves (NEEDS_CHAD 9) — n/a.
 - **`runCalc` gained an optional input transform** — attaching a suppressor is a last-mile change to the solve input, and threading it through every form field would have duplicated the engine's own `applySuppressor` — n/a.
+
+## Phase 6 — The Field
+
+- **The session, not the shot, is the unit of analysis** — twenty shots from one barrel on one day are one opinion about a load, not twenty. Everything downstream (cap, outlier filter, CI) operates on session means — n/a.
+- **Six defences in order: consent, plausibility, per-user cap, trust weighting, robust outlier filter, disclosure thresholds** — each catches something the others cannot, and the order matters: an opted-out user is never even scored — `aggregate.ts`.
+- **The per-user cap keeps the _earliest_ sessions, not the best-agreeing ones** — selecting the sessions that agree would be choosing data to fit the answer — n/a.
+- **Trust weighting is deliberately gentle (chrono type × string length, both ≤ 2:1)** — the intent is to let better evidence pull harder, not to silence anyone; revisit once there is real data to calibrate against — `CHRONO_WEIGHT`, `stringLengthWeight`.
+- **The confidence interval uses Kish's effective sample size** — a group carried by one heavily weighted session must not claim the precision of many — `effectiveSampleSize`.
+- **Temperature normalisation only happens when both the session temperature and the load's powder sensitivity are known; otherwise the group is marked un-normalised** — pretending a correction happened is worse than admitting it did not — n/a.
+- **Suppressor deltas come only from paired strings inside one session** — comparing a suppressed string from one day with an unsuppressed one from another measures the weather as much as the can — n/a.
+- **Every exclusion carries a message written for the contributor, not for a log** — the session page shows them, so "statistical-outlier" has to read as an explanation and say their own history still shows the session — n/a.
+- **No device-specific chronograph parsers** — the Garmin Xero and LabRadar formats could not be confirmed (NEEDS_CHAD 7), and a parser written against a remembered layout fails silently on the first real file. The generic importer scores candidate header rows by how many numeric rows follow them, which gets through both devices' metadata preambles — add real parsers once sample files exist.
+- **`/admin` is a server component** — the guard has to run where the user cannot reach it; a client-side `isAdmin` check is decoration — n/a.
+- **The rate limiter is in-memory and per-instance, and says so** — it stops one client hammering the waitlist; it is not a defence against a distributed attacker, and it moves to a shared store when the backend lands — `lib/rate-limit.ts`.
+- **The session detail page runs the real aggregation pipeline on that one session** — it will never clear the disclosure thresholds alone, but the exclusion reasons are exactly what the server will produce, so the owner can see why their session does or does not count — n/a.

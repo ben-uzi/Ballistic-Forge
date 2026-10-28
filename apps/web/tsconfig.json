@@ -5,6 +5,9 @@
     "types": ["node"],
     "jsx": "preserve",
     "allowJs": true,
+    // @bf/db's internal imports carry .ts extensions so its seed CLI can run
+    // under Node's native type stripping; typechecking it here needs this.
+    "allowImportingTsExtensions": true,
     "incremental": true,
     "plugins": [{ "name": "next" }],
     "paths": {

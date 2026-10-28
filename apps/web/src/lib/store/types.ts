@@ -121,6 +121,54 @@ export interface StoredSuppressorSetup {
   readonly updatedAt: string;
 }
 
+export type ChronoType =
+  'garmin_xero' | 'labradar' | 'magnetospeed' | 'optical' | 'other' | 'unknown';
+
+export type SessionStatus = 'draft' | 'submitted';
+
+export interface StoredShotString {
+  readonly id: string;
+  readonly suppressed: boolean;
+  readonly firstRoundCold: boolean;
+  readonly label?: string;
+  readonly velocitiesFps: readonly number[];
+}
+
+export interface StoredDropObservation {
+  readonly id: string;
+  readonly rangeYd: number;
+  readonly observedElevation: number;
+  readonly unit: AngularUnit;
+  readonly observedWindage?: number;
+  readonly hit?: boolean;
+}
+
+/** A range session: what was shot, under what conditions, and what it measured. */
+export interface StoredSession {
+  readonly id: string;
+  readonly rifleId: string;
+  readonly loadId: string;
+  readonly suppressorId?: string;
+  readonly occurredOn: string;
+  readonly chronoType: ChronoType;
+  readonly status: SessionStatus;
+  readonly tempF?: number;
+  readonly pressure?: number;
+  readonly pressureType?: 'station' | 'baro';
+  readonly altitudeFt?: number;
+  readonly humidityPct?: number;
+  /** Coarse only: a region name, never coordinates. */
+  readonly regionCoarse?: string;
+  readonly notes?: string;
+  readonly strings: readonly StoredShotString[];
+  readonly drops: readonly StoredDropObservation[];
+  readonly poiVerticalIn?: number;
+  readonly poiHorizontalIn?: number;
+  readonly poiDistanceYd?: number;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
 export interface UnitPrefs {
   readonly range: 'yd' | 'm';
   readonly velocity: 'fps' | 'mps';
@@ -146,6 +194,7 @@ export interface StoreSnapshot {
   readonly loads: readonly StoredLoad[];
   readonly suppressors: readonly StoredSuppressor[];
   readonly suppressorSetups: readonly StoredSuppressorSetup[];
+  readonly sessions: readonly StoredSession[];
   readonly prefs: UnitPrefs;
 }
 
@@ -171,6 +220,11 @@ export interface ProfileStore {
   getSuppressor(id: string): Promise<StoredSuppressor | null>;
   saveSuppressor(suppressor: StoredSuppressor): Promise<StoredSuppressor>;
   deleteSuppressor(id: string): Promise<void>;
+
+  listSessions(): Promise<StoredSession[]>;
+  getSession(id: string): Promise<StoredSession | null>;
+  saveSession(session: StoredSession): Promise<StoredSession>;
+  deleteSession(id: string): Promise<void>;
 
   listSuppressorSetups(rifleId?: string): Promise<StoredSuppressorSetup[]>;
   saveSuppressorSetup(setup: StoredSuppressorSetup): Promise<StoredSuppressorSetup>;

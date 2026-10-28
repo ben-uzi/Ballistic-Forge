@@ -3,6 +3,8 @@ import type {
   StoredBullet,
   StoredLoad,
   StoredRifle,
+  StoredSession,
+  StoredShotString,
   StoredSuppressor,
   StoredSuppressorSetup,
 } from './types';
@@ -79,6 +81,43 @@ export function newLoad(
     muzzleVelocitySource: 'advertised',
     createdAt: at,
     updatedAt: at,
+    ...overrides,
+  };
+}
+
+export function newSession(
+  rifleId: string,
+  loadId: string,
+  overrides: Partial<
+    Omit<StoredSession, 'id' | 'rifleId' | 'loadId' | 'createdAt' | 'updatedAt'>
+  > = {},
+  clock: Clock = systemClock,
+): StoredSession {
+  const at = clock.now();
+  return {
+    id: clock.id(),
+    rifleId,
+    loadId,
+    occurredOn: at.slice(0, 10),
+    chronoType: 'unknown',
+    status: 'draft',
+    strings: [],
+    drops: [],
+    createdAt: at,
+    updatedAt: at,
+    ...overrides,
+  };
+}
+
+export function newShotString(
+  overrides: Partial<Omit<StoredShotString, 'id'>> = {},
+  clock: Clock = systemClock,
+): StoredShotString {
+  return {
+    id: clock.id(),
+    suppressed: false,
+    firstRoundCold: false,
+    velocitiesFps: [],
     ...overrides,
   };
 }

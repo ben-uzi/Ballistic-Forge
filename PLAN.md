@@ -213,26 +213,28 @@ Pure functions only — no React, DOM, or network. All internal math in SI.
 
 ## Phase 6 — The Field §10
 
-- [ ] `/sessions/new` wizard: rifle/load/suppressor → chrono type → strings (paste/tap, suppressed flag, cold bore) → optional drops & POI shift → review (mean/SD/ES) → submit
-- [ ] Conditions pre-filled from last session
-- [ ] Drafts autosave locally; offline queue syncs when online
-- [ ] CSV import: Garmin Xero + LabRadar parsers if formats confirmable, plus generic column-mapping importer (log in DECISIONS)
-- [ ] `/sessions`, `/sessions/[id]` incl. excluded-with-reason visibility for owner
-- [ ] Aggregation (pure TS core, unit-tested, invoked by Edge Function / SQL on submit + nightly cron):
-  - [ ] Group key: bullet|factory_load × 1" barrel bucket × suppressor
-  - [ ] Session = one sample; per-user cap (default 3 sessions/group full weight)
-  - [ ] Temp normalization to 59 °F when sensitivity known, else `normalized=false`
-  - [ ] Plausibility gates (±20% advertised MV, chrono range, SD < 100) then MAD exclusion (3.5 × scaled MAD)
-  - [ ] Trust weighting v1 (chrono type, string length; flagged accounts excluded) — formula in DECISIONS
-  - [ ] t-based 95% CI; shown only when n_sessions ≥ min and n_users ≥ 3
-  - [ ] Suppressor deltas from same-session paired strings only
-  - [ ] Opted-out users excluded; deletion triggers recompute
-  - [ ] Stretch: fps-per-inch barrel curve behind admin flag
-- [ ] `/field`: personal history (MV over time, SD/ES trends, temp vs MV), "Your shots in the Field Database: N"; community view only when flag on
-- [ ] Calculator/library Field MV badge (flag-gated)
-- [ ] `/admin` (server-guarded): totals, progress to reveal threshold, flagged-session review queue, group drill-down, flag toggles, reference-data verify/edit
-- [ ] Rate limit on session submission
-- [ ] **Gate** → `phase-6: field data engine`
+- [x] `/sessions/new` wizard: rifle/load/suppressor → chrono type + conditions → strings (paste or import, suppressed flag, cold bore) → optional drops & POI shift → review (mean/SD/ES) → submit
+- [x] Conditions pre-filled from the last session
+- [x] Drafts autosave to local storage on every change
+- [ ] Offline queue that syncs when online — nothing to sync to until the backend exists (NEEDS_CHAD 1)
+- [x] CSV import: a generic importer that finds the table under a device's preamble, detects the velocity column, converts m/s, and lets the user override the column
+- [ ] Device-specific Garmin Xero / LabRadar parsers — formats could not be confirmed (NEEDS_CHAD 7); the generic importer handles both in practice
+- [x] `/sessions`, `/sessions/[id]` with per-session exclusion reasons shown to the owner
+- [x] Aggregation core (`packages/db/src/aggregate.ts`), pure TS, 44 unit tests:
+  - [x] Group key: bullet|factory_load × 1" barrel bucket × suppressor
+  - [x] Session = one sample; per-user cap (default 3 sessions/group, oldest kept)
+  - [x] Temp normalisation to 59 °F when sensitivity known, else `normalized=false`
+  - [x] Plausibility gates (±20% advertised MV, chrono range, SD < 100) then MAD exclusion (3.5 × scaled MAD) on the session means
+  - [x] Trust weighting v1 (chrono type × string length; flagged and opted-out accounts excluded) — formula in DECISIONS
+  - [x] t-based 95% CI with Kish effective sample size; `displayable` only when n_sessions ≥ min and n_users ≥ min
+  - [x] Suppressor deltas from same-session paired strings only
+  - [x] Opted-out users excluded
+  - [ ] Invoked by an Edge Function on submit + nightly cron — needs the backend; the core is ready and tested
+- [x] `/field`: personal history (MV over time, per-load SD/ES), "shots logged" counter; community view explicitly gated with the thresholds stated
+- [ ] Calculator Field MV badge — the flag is off and there is no field data to badge; wiring waits for real aggregates
+- [x] `/admin`: **server component**, guarded by `ADMIN_EMAILS` and the session; shows totals and progress to the reveal threshold once connected, and says plainly that it needs a backend in demo mode
+- [x] Rate limit on the one endpoint that exists (waitlist); session submission is local-only until the backend lands
+- [x] **Gate** → `phase-6: field data engine`
 
 ## Phase 7 — Library, auth, entitlements, beta readiness §11
 

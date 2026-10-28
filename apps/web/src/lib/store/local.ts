@@ -4,6 +4,7 @@ import {
   type StoreSnapshot,
   type StoredLoad,
   type StoredRifle,
+  type StoredSession,
   type StoredSuppressor,
   type StoredSuppressorSetup,
   type UnitPrefs,
@@ -14,6 +15,7 @@ const KEYS = {
   loads: 'bf.loads.v1',
   suppressors: 'bf.suppressors.v1',
   suppressorSetups: 'bf.suppressorSetups.v1',
+  sessions: 'bf.sessions.v1',
   prefs: 'bf.prefs.v1',
 } as const;
 
@@ -126,6 +128,32 @@ export class LocalStore implements ProfileStore {
     );
   }
 
+  listSessions(): Promise<StoredSession[]> {
+    const all = this.read<StoredSession[]>(KEYS.sessions, []);
+    // Newest first: the range log is read from the top.
+    return Promise.resolve([...all].sort((a, b) => b.occurredOn.localeCompare(a.occurredOn)));
+  }
+
+  async getSession(id: string): Promise<StoredSession | null> {
+    return (await this.listSessions()).find((entry) => entry.id === id) ?? null;
+  }
+
+  async saveSession(session: StoredSession): Promise<StoredSession> {
+    const all = await this.listSessions();
+    const index = all.findIndex((entry) => entry.id === session.id);
+    if (index === -1) all.push(session);
+    else all[index] = session;
+    this.write(KEYS.sessions, all);
+    return session;
+  }
+
+  async deleteSession(id: string): Promise<void> {
+    this.write(
+      KEYS.sessions,
+      (await this.listSessions()).filter((entry) => entry.id !== id),
+    );
+  }
+
   listSuppressorSetups(rifleId?: string): Promise<StoredSuppressorSetup[]> {
     const all = this.read<StoredSuppressorSetup[]>(KEYS.suppressorSetups, []);
     return Promise.resolve(
@@ -169,6 +197,7 @@ export class LocalStore implements ProfileStore {
       loads: await this.listLoads(),
       suppressors: await this.listSuppressors(),
       suppressorSetups: await this.listSuppressorSetups(),
+      sessions: await this.listSessions(),
       prefs: await this.getPrefs(),
     };
   }
@@ -178,6 +207,7 @@ export class LocalStore implements ProfileStore {
     this.write(KEYS.loads, snapshot.loads);
     this.write(KEYS.suppressors, snapshot.suppressors ?? []);
     this.write(KEYS.suppressorSetups, snapshot.suppressorSetups ?? []);
+    this.write(KEYS.sessions, snapshot.sessions ?? []);
     this.write(KEYS.prefs, snapshot.prefs);
     return Promise.resolve();
   }

@@ -13,7 +13,8 @@ _Running draft. Written in full at the end of Phase 8 (see `docs/BUILD_BRIEF.md`
   to real bytes.
 - Phase 5 (The Can) — complete. 64 further tests. The suppressor library ships empty because no
   manufacturer specs could be sourced (NEEDS_CHAD 9); the module works against your own entries.
-  See `PLAN.md`.
+- Phase 6 (The Field) — complete. 76 further tests. The aggregation core is finished and tested;
+  running it server-side on submit and nightly needs the backend. See `PLAN.md`.
 
 ## Running it
 
@@ -45,6 +46,12 @@ stored in the browser, and there are no accounts. `apps/web/.env.example` docume
 - `/suppressors`, `/suppressors/[id]`, `/suppressors/compatibility` — The Can: specs, a
   compatibility checker that answers "unknown" rather than guessing, and your own measured velocity
   deltas per rifle.
+- `/sessions`, `/sessions/new`, `/sessions/[id]` — a five-step logging wizard with draft
+  autosave, a chronograph CSV importer, and per-session reasons for whether it would count
+  towards a community aggregate.
+- `/field` — your velocity history over time and by load, with the community view explicitly
+  gated and the thresholds stated.
+- `/admin` — server-guarded; says plainly that it needs a backend in demo mode.
 - `/legal/*` — DRAFT terms, privacy and disclaimer.
 
 Everything else in the navigation is shown as "soon" and is not yet built.

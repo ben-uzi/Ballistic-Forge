@@ -1,6 +1,7 @@
 import { WaitlistInput } from '@bf/db/schemas';
 import { NextResponse } from 'next/server';
 import { hasSupabase } from '@/lib/env';
+import { callerKey, rateLimit } from '@/lib/rate-limit';
 import { getServerClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
@@ -8,6 +9,10 @@ export const runtime = 'nodejs';
 export type WaitlistResponse =
   | { readonly ok: true; readonly stored: 'supabase' | 'local' }
   | { readonly ok: false; readonly error: string };
+
+/** Five sign-ups per address per hour is generous for a human and tedious for a script. */
+const LIMIT = 5;
+const WINDOW_MS = 60 * 60 * 1000;
 
 /**
  * Beta waitlist sign-up.
@@ -18,6 +23,14 @@ export type WaitlistResponse =
  * (NEEDS_CHAD 1).
  */
 export async function POST(request: Request): Promise<NextResponse<WaitlistResponse>> {
+  const limit = rateLimit(callerKey(request, 'waitlist'), LIMIT, WINDOW_MS);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { ok: false, error: 'That is a lot of sign-ups. Try again later.' },
+      { status: 429, headers: { 'retry-after': String(limit.retryAfter) } },
+    );
+  }
+
   let body: unknown;
   try {
     body = await request.json();

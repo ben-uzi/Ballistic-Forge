@@ -2,7 +2,13 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { getStore } from './index';
-import type { StoredLoad, StoredRifle, StoredSuppressor, StoredSuppressorSetup } from './types';
+import type {
+  StoredLoad,
+  StoredRifle,
+  StoredSession,
+  StoredSuppressor,
+  StoredSuppressorSetup,
+} from './types';
 
 /**
  * React access to the profile store.
@@ -60,6 +66,16 @@ export function useLoads(rifleId?: string): Query<StoredLoad[]> {
 
 export function useLoad(id: string | null): Query<StoredLoad | null> {
   return useQuery(() => (id === null ? Promise.resolve(null) : getStore().getLoad(id)), null, [id]);
+}
+
+export function useSessions(): Query<StoredSession[]> {
+  return useQuery(() => getStore().listSessions(), [], []);
+}
+
+export function useSession(id: string | null): Query<StoredSession | null> {
+  return useQuery(() => (id === null ? Promise.resolve(null) : getStore().getSession(id)), null, [
+    id,
+  ]);
 }
 
 export function useSuppressors(): Query<StoredSuppressor[]> {

@@ -3,6 +3,7 @@ import type {
   StoreSnapshot,
   StoredLoad,
   StoredRifle,
+  StoredSession,
   StoredSuppressor,
   StoredSuppressorSetup,
   UnitPrefs,
@@ -64,6 +65,18 @@ export class SupabaseStore implements ProfileStore {
     return this.unavailable();
   }
   deleteSuppressor(): Promise<void> {
+    return this.unavailable();
+  }
+  listSessions(): Promise<StoredSession[]> {
+    return this.unavailable();
+  }
+  getSession(): Promise<StoredSession | null> {
+    return this.unavailable();
+  }
+  saveSession(): Promise<StoredSession> {
+    return this.unavailable();
+  }
+  deleteSession(): Promise<void> {
     return this.unavailable();
   }
   listSuppressorSetups(): Promise<StoredSuppressorSetup[]> {
