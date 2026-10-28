@@ -11,6 +11,17 @@ export function SiteFooter(): ReactElement {
           Confirm your data with live fire before you rely on it. You are responsible for the safe
           and lawful use of your firearms.
         </p>
+        <nav aria-label="More" className="flex flex-wrap gap-x-5 gap-y-2">
+          <Link className="hover:text-ink-300" href="/account">
+            Account
+          </Link>
+          <Link className="hover:text-ink-300" href="/feedback">
+            Feedback
+          </Link>
+          <Link className="hover:text-ink-300" href="/onboarding">
+            Set up
+          </Link>
+        </nav>
         <nav aria-label="Legal" className="flex flex-wrap gap-x-5 gap-y-2">
           <Link className="hover:text-ink-300" href="/legal/disclaimer">
             Disclaimer

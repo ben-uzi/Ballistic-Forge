@@ -16,16 +16,16 @@ const PILLARS = [
   {
     icon: Volume2,
     name: 'The Can',
-    status: 'Next',
-    ready: false,
+    status: 'Working now',
+    ready: true,
     body: 'Suppressed and unsuppressed as one profile: your own measured velocity delta and point-of-impact shift, plus a mount and calibre compatibility checker that answers "unknown" rather than guessing.',
   },
   {
     icon: Database,
     name: 'The Field',
-    status: 'Next',
-    ready: false,
-    body: 'Log a chronograph string, an observed drop, a suppressor on and off. Your own history is yours from day one; the community aggregate stays switched off until there is enough data for the number to mean something.',
+    status: 'Logging now',
+    ready: true,
+    body: 'Log a chronograph string, an observed drop, a suppressor on and off. Your own history is yours from day one; the community aggregate stays switched off — enforced in the database, not just the interface — until enough shooters agree for the number to mean something.',
   },
 ] as const;
 
@@ -49,6 +49,9 @@ export default function HomePage(): ReactElement {
               Open the calculator
               <ArrowRight aria-hidden="true" />
             </Link>
+          </Button>
+          <Button asChild variant="secondary" size="lg">
+            <Link href="/onboarding">Set up my rifle</Link>
           </Button>
           <span className="text-xs text-ink-500">No account needed.</span>
         </div>
@@ -81,8 +84,9 @@ export default function HomePage(): ReactElement {
         <h2 className="text-lg font-semibold text-ink-100">The pilot is small on purpose</h2>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-500">
           There are no download counts or accuracy claims on this page because there is nothing yet
-          to count. What exists today is an engine with 143 tests behind it and a calculator you can
-          check against your own DOPE. If that is interesting, say so.
+          to count. What exists is a solver you can check against your own DOPE, a suppressor
+          checker that says &ldquo;unknown&rdquo; rather than guessing, and a test suite that runs
+          on every commit. If that is interesting, say so.
         </p>
         <div className="mt-5 max-w-xl">
           <WaitlistForm />

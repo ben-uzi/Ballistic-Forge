@@ -10,7 +10,9 @@
     "./schemas": "./src/schemas.ts",
     "./types": "./src/types.ts",
     "./aggregate": "./src/aggregate.ts",
-    "./chrono": "./src/chrono.ts"
+    "./chrono": "./src/chrono.ts",
+    "./csv": "./src/csv.ts",
+    "./seed": "./src/seed.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",

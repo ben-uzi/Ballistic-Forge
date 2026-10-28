@@ -29,6 +29,7 @@ import { byField, unmapped } from '@/lib/calc/issues';
 import { runCalc } from '@/lib/calc/solve';
 import type { CalcForm, CompareLoad, FormUnits } from '@/lib/calc/types';
 import { compareLoadWithUnits, withUnits } from '@/lib/calc/units';
+import { findBullet, preferredBc } from '@/lib/library';
 import { formFromProfile } from '@/lib/profiles/to-form';
 import { getStore } from '@/lib/store';
 
@@ -38,7 +39,9 @@ export function Calculator(): ReactElement {
   const [form, setForm] = useState<CalcForm>(DEFAULT_FORM);
   const [compareLoads, setCompareLoads] = useState<readonly CompareLoad[]>([]);
   const [loadedProfile, setLoadedProfile] = useState<string | null>(null);
-  const requestedLoadId = useSearchParams().get('load');
+  const searchParams = useSearchParams();
+  const requestedLoadId = searchParams.get('load');
+  const requestedBulletId = searchParams.get('bullet');
 
   // Restore after mount so the server and first client render agree.
   useEffect(() => {
@@ -82,6 +85,33 @@ export function Calculator(): ReactElement {
       cancelled = true;
     };
   }, [requestedLoadId]);
+
+  // `/calc?bullet=<id>` loads one row from the library. Only the bullet
+  // changes; the rifle, conditions and output range stay as they are.
+  useEffect(() => {
+    if (requestedBulletId === null) return;
+    const bullet = findBullet(requestedBulletId);
+    if (bullet === null) return;
+    const bc = preferredBc(bullet);
+    if (bc === null) return;
+    setForm((current) => ({
+      ...current,
+      bulletName: `${bullet.manufacturer} ${bullet.name}`,
+      diameter: current.units.smallLength === 'in' ? bullet.diameterIn : bullet.diameterIn * 25.4,
+      weight: current.units.mass === 'gr' ? bullet.weightGr : bullet.weightGr * 0.06479891,
+      bcType: bc.type,
+      bcValue: bc.value,
+      bulletLength:
+        bullet.lengthIn === null
+          ? null
+          : current.units.smallLength === 'in'
+            ? bullet.lengthIn
+            : bullet.lengthIn * 25.4,
+      // Library rows carry a source but no human has checked them.
+      dataUnverified: !bullet.verified,
+    }));
+    setLoadedProfile(`${bullet.manufacturer} ${bullet.name}`);
+  }, [requestedBulletId]);
 
   const set = useCallback(<K extends keyof CalcForm>(key: K, value: CalcForm[K]): void => {
     setForm((current) => ({ ...current, [key]: value }));

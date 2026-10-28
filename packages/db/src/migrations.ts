@@ -10,6 +10,11 @@ export const MIGRATIONS_DIR = fileURLToPath(
 /** `supabase/seed`, where the CSVs and the generated seed.sql live. */
 export const SEED_DIR = fileURLToPath(new URL('../../../supabase/seed/', import.meta.url));
 
+/** Where the bundled offline library lands in the web app. */
+export const LIBRARY_PATH = fileURLToPath(
+  new URL('../../../apps/web/src/lib/library/bullets.json', import.meta.url),
+);
+
 export interface Migration {
   readonly name: string;
   readonly sql: string;

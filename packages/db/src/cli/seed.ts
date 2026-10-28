@@ -14,9 +14,9 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseCsv, toCsv, type CsvRow } from '../csv.ts';
-import { SEED_DIR } from '../migrations.ts';
+import { LIBRARY_PATH, SEED_DIR } from '../migrations.ts';
 import { SEED_ORDER, type SeedFile } from '../schemas.ts';
-import { buildSeed, toVerifyRows, type SeedInput } from '../seed.ts';
+import { buildLibrary, buildSeed, toVerifyRows, type SeedInput } from '../seed.ts';
 
 const checkOnly = process.argv.includes('--check');
 
@@ -56,6 +56,12 @@ if (checkOnly) {
 
 writeFileSync(join(SEED_DIR, 'seed.sql'), result.sql, 'utf8');
 console.log(`\n  wrote ${join(SEED_DIR, 'seed.sql')}`);
+
+// The same validated rows, bundled into the web app so the library works
+// with no backend and cannot drift from the database.
+const library = buildLibrary(collected);
+writeFileSync(LIBRARY_PATH, `${JSON.stringify(library, null, 2)}\n`, 'utf8');
+console.log(`  wrote ${LIBRARY_PATH} (${String(library.bullets.length)} bullets)`);
 
 if (result.rejected.length > 0) {
   const rows = toVerifyRows(result.rejected);

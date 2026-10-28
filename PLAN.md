@@ -238,14 +238,17 @@ Pure functions only — no React, DOM, or network. All internal math in SI.
 
 ## Phase 7 — Library, auth, entitlements, beta readiness §11
 
-- [ ] `/library`: search/filter by cartridge, weight, manufacturer, BC type; verified badges; "Use in calculator"; "Suggest a correction" → admin queue
-- [ ] Auth: magic link + Google OAuth (Supabase); guest → account migration of localStorage profiles
-- [ ] Entitlements: single Free vs Pro config file; all beta users = `founder`; `useEntitlement()` hook gating Pro candidates
-- [ ] Feedback button → `feedback` table (+ optional screenshot to Storage)
-- [ ] 3-step onboarding (units → rifle → load) ending on a real solution
-- [ ] Empty states everywhere with a clear next action
-- [ ] `/account`: units, contribution opt-in, data export (JSON + CSV), delete account
-- [ ] **Gate** → `phase-7: library, auth, entitlements`
+- [x] `/library`: search by name or manufacturer (words in any order), filter by calibre, manufacturer and published BC type; unverified badges on every row; "Use in calculator"; link to the source page
+- [x] The library is bundled into the app from the same CSVs that build `seed.sql`, so it works in demo mode and cannot drift from the database
+- [x] "Suggest a correction" → `/feedback`, which writes to `corrections` (never applied automatically) or `feedback`
+- [ ] Auth: magic link + Google OAuth — needs a Supabase project and Google credentials (NEEDS_CHAD 1, 2). The typed clients, RLS and profile trigger are in place and tested; only the sign-in UI is missing
+- [x] Guest → account migration path: `exportAll`/`importAll` on the store, exposed in `/account` as JSON export and import
+- [x] Entitlements: one Free vs Pro config file, every beta user a `founder`, `useEntitlement()` hook threaded through the UI
+- [x] Feedback endpoint with a rate limit; says plainly when there is nowhere to persist
+- [x] 3-step onboarding (units → rifle → load) ending on a real solution, not a congratulations screen
+- [x] Empty states on every list, each with the next action
+- [x] `/account`: units, contribution opt-in, data export (JSON + CSV), JSON import, delete all local data
+- [x] **Gate** → `phase-7: library, account, onboarding`
 
 ## Phase 8 — Hardening & handoff §12
 

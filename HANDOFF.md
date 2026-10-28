@@ -14,7 +14,9 @@ _Running draft. Written in full at the end of Phase 8 (see `docs/BUILD_BRIEF.md`
 - Phase 5 (The Can) — complete. 64 further tests. The suppressor library ships empty because no
   manufacturer specs could be sourced (NEEDS_CHAD 9); the module works against your own entries.
 - Phase 6 (The Field) — complete. 76 further tests. The aggregation core is finished and tested;
-  running it server-side on submit and nightly needs the backend. See `PLAN.md`.
+  running it server-side on submit and nightly needs the backend.
+- Phase 7 (library, account, onboarding) — complete. 22 further tests. Auth is the one item left
+  undone: it needs a Supabase project and Google credentials (NEEDS_CHAD 1, 2). See `PLAN.md`.
 
 ## Running it
 
@@ -51,6 +53,12 @@ stored in the browser, and there are no accounts. `apps/web/.env.example` docume
   towards a community aggregate.
 - `/field` — your velocity history over time and by load, with the community view explicitly
   gated and the thresholds stated.
+- `/library` — 29 bullets bundled from manufacturer pages, searchable and filterable, each badged
+  unverified with a link to its source; one click loads a bullet into the calculator.
+- `/account` — units, contribution opt-in, JSON and CSV export, JSON import, delete everything.
+- `/onboarding` — three steps ending on a real solution.
+- `/feedback` — feedback and library corrections; corrections go to a review queue, never straight
+  into the library.
 - `/admin` — server-guarded; says plainly that it needs a backend in demo mode.
 - `/legal/*` — DRAFT terms, privacy and disclaimer.
 
