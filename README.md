@@ -47,7 +47,7 @@ Then open `/calc`. It solves on load — no setup, no account.
 ## Tests
 
 ```sh
-pnpm gate                          # 489 unit tests, lint, typecheck
+pnpm gate                          # 494 unit tests, lint, typecheck
 pnpm --filter @bf/web e2e          # 34 end-to-end tests, desktop + mobile
 ```
 

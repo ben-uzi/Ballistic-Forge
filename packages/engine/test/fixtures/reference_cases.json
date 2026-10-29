@@ -1,5 +1,790 @@
 {
-  "schemaVersion": 1,
-  "description": "External reference trajectories from established solvers (JBM, Hornady 4DOF). Intentionally empty until filled from real solver runs — never invent values. Schema: see README.md in this folder.",
-  "cases": []
+  "schemaVersion": 2,
+  "description": "External reference trajectories from an independent point-mass solver. Every value comes from a real run of the named solver; never invent or hand-edit values. Schema: see README.md in this folder.",
+  "fixtureVersion": 1,
+  "generated": "2026-10-29",
+  "generator": "scripts/generate_reference_cases.py",
+  "source": {
+    "solver": "py-ballisticcalc",
+    "version": "3.1.1",
+    "url": "https://pypi.org/project/py-ballisticcalc/",
+    "engine": "default integration engine, point-mass",
+    "notes": "Independent LGPL solver derived from public JBM C sources. JBM's online calculators were retired, so they could not be used."
+  },
+  "conventions": {
+    "path_in": "bullet height relative to line of sight, inches; negative = below",
+    "elev_mil": "elevation correction to dial, milliradians (MRAD); positive = up",
+    "windage_in": "lateral offset, inches; sign follows solver (positive = right)",
+    "spin_drift": "disabled (twist = 0)",
+    "coriolis": "disabled",
+    "zero_atmosphere": "same as shot atmosphere",
+    "pressure_type": "station (absolute) pressure; altitude given for reference only",
+    "incline_deg": "0 in all cases; incline is excluded because solvers differ on slant vs horizontal range conventions",
+    "wind_clock_as_written": "direction wind comes FROM, 12 = headwind, 3 = from the right",
+    "wind_clock": "CORRECTED. The generator passes Angular.OClock(n) to py-ballisticcalc, whose Wind.direction_from is 0 = from behind the shooter, 90 deg (3 o'clock) = from the shooter's LEFT. So the note above ('12 = headwind, 3 = from the right') does not describe what was computed: every case's windage sign shows 3 o'clock pushing the bullet right. Each case's input.windClock is therefore converted to this repo's convention (12 = headwind, 3 = from the right) as (n + 6) mod 12; the solver's raw value is kept as input.sourceWindClock."
+  },
+  "unitNote": "All *_mil fields are MILLIRADIANS (1000 per radian), which is what scope turrets use. py-ballisticcalc's Angular.Mil is the NATO mil (6400 per circle) and was deliberately NOT used.",
+  "toleranceRationale": "Two independent solvers (py-ballisticcalc and ShootersCalculator.com) given identical inputs agree within 0.1 mil to 800 yd but differ by up to 0.21 mil and 28 fps at 1000 yd near transonic. A tolerance tighter than that would fail on disagreement between reference solvers, not on bugs.",
+  "crossCheck": {
+    "solver": "ShootersCalculator.com Ballistic Trajectory Calculator",
+    "url": "https://shooterscalculator.com/ballistic-trajectory-chart.php",
+    "retrieved": "2026-10-29",
+    "caveat": "This site ran at 50% RH regardless of the humidity entered; compare these rows against the matching py-ballisticcalc case only loosely (humidity changes elevation by roughly 0.01-0.03 mil at 1000 yd here).",
+    "cases": {
+      "g7_65cm_140_std": [
+        {
+          "range_yd": 300,
+          "path_in": -13.37,
+          "elev_mil": 1.24,
+          "windage_in": 0,
+          "wind_mil": 0,
+          "velocity_fps": 2312,
+          "tof_s": 0.36
+        },
+        {
+          "range_yd": 500,
+          "path_in": -52.89,
+          "elev_mil": 2.94,
+          "windage_in": 0,
+          "wind_mil": 0,
+          "velocity_fps": 2065,
+          "tof_s": 0.63
+        },
+        {
+          "range_yd": 800,
+          "path_in": -176.36,
+          "elev_mil": 6.12,
+          "windage_in": 0,
+          "wind_mil": 0,
+          "velocity_fps": 1722,
+          "tof_s": 1.11
+        },
+        {
+          "range_yd": 1000,
+          "path_in": -315.48,
+          "elev_mil": 8.76,
+          "windage_in": 0,
+          "wind_mil": 0,
+          "velocity_fps": 1511,
+          "tof_s": 1.48
+        }
+      ],
+      "g7_308_175_wind": [
+        {
+          "range_yd": 500,
+          "path_in": -63.83,
+          "elev_mil": 3.55,
+          "windage_in": 21.45,
+          "wind_mil": 1.19,
+          "velocity_fps": 1775,
+          "tof_s": 0.7
+        },
+        {
+          "range_yd": 800,
+          "path_in": -225.17,
+          "elev_mil": 7.82,
+          "windage_in": 62.57,
+          "wind_mil": 2.17,
+          "velocity_fps": 1358,
+          "tof_s": 1.28
+        },
+        {
+          "range_yd": 1000,
+          "path_in": -423.49,
+          "elev_mil": 11.76,
+          "windage_in": 107.98,
+          "wind_mil": 3.0,
+          "velocity_fps": 1119,
+          "tof_s": 1.77
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "id": "g7_65cm_140_std",
+      "source": "py-ballisticcalc 3.1.1",
+      "sourceUrl": "https://pypi.org/project/py-ballisticcalc/",
+      "retrievedAt": "2026-10-29",
+      "notes": "Generator label: 6.5mm 140 gr, G7 0.326, 2710 fps, ICAO std, no wind. Spin drift and Coriolis off (twist = 0). Zeroed in the shot atmosphere.",
+      "input": {
+        "dragFunction": "G7",
+        "bc": 0.326,
+        "bulletWeightGr": 140,
+        "bulletDiameterIn": 0.264,
+        "muzzleVelocityFps": 2710,
+        "sightHeightIn": 1.5,
+        "zeroRangeYd": 100,
+        "temperatureF": 59.0,
+        "pressureInHg": 29.92,
+        "pressureType": "station",
+        "altitudeFt": 0,
+        "humidityPercent": 0,
+        "windSpeedMph": 0,
+        "windClock": 9,
+        "sourceWindClock": 3,
+        "inclineDeg": 0,
+        "spinDrift": false
+      },
+      "expected": [
+        {
+          "rangeYd": 100,
+          "dropIn": 0.0,
+          "elevationMil": 0.0,
+          "windageIn": 0.0,
+          "windageMil": 0.0,
+          "velocityFps": 2570.0,
+          "timeS": 0.114
+        },
+        {
+          "rangeYd": 200,
+          "dropIn": -3.77,
+          "elevationMil": 0.52,
+          "windageIn": 0.0,
+          "windageMil": 0.0,
+          "velocityFps": 2433.0,
+          "timeS": 0.234
+        },
+        {
+          "rangeYd": 300,
+          "dropIn": -13.41,
+          "elevationMil": 1.24,
+          "windageIn": 0.0,
+          "windageMil": 0.0,
+          "velocityFps": 2301.0,
+          "timeS": 0.36
+        },
+        {
+          "rangeYd": 400,
+          "dropIn": -29.63,
+          "elevationMil": 2.06,
+          "windageIn": 0.0,
+          "windageMil": 0.0,
+          "velocityFps": 2173.0,
+          "timeS": 0.495
+        },
+        {
+          "rangeYd": 500,
+          "dropIn": -53.21,
+          "elevationMil": 2.96,
+          "windageIn": 0.0,
+          "windageMil": 0.0,
+          "velocityFps": 2050.0,
+          "timeS": 0.637
+        },
+        {
+          "rangeYd": 600,
+          "dropIn": -85.08,
+          "elevationMil": 3.94,
+          "windageIn": 0.0,
+          "windageMil": 0.0,
+          "velocityFps": 1930.0,
+          "timeS": 0.788
+        },
+        {
+          "rangeYd": 700,
+          "dropIn": -126.29,
+          "elevationMil": 5.01,
+          "windageIn": 0.0,
+          "windageMil": 0.0,
+          "velocityFps": 1814.0,
+          "timeS": 0.948
+        },
+        {
+          "rangeYd": 800,
+          "dropIn": -178.08,
+          "elevationMil": 6.18,
+          "windageIn": 0.0,
+          "windageMil": 0.0,
+          "velocityFps": 1701.0,
+          "timeS": 1.119
+        },
+        {
+          "rangeYd": 900,
+          "dropIn": -241.9,
+          "elevationMil": 7.47,
+          "windageIn": 0.0,
+          "windageMil": 0.0,
+          "velocityFps": 1592.0,
+          "timeS": 1.301
+        },
+        {
+          "rangeYd": 1000,
+          "dropIn": -319.47,
+          "elevationMil": 8.87,
+          "windageIn": 0.0,
+          "windageMil": 0.0,
+          "velocityFps": 1485.0,
+          "timeS": 1.496
+        }
+      ],
+      "tolerance": {
+        "elevationMil": {
+          "near": 0.1,
+          "far": 0.25,
+          "nearToYd": 800,
+          "farBelowMach": 1.2
+        },
+        "windageMil": {
+          "near": 0.05,
+          "far": 0.15,
+          "nearToYd": 800,
+          "farBelowMach": 1.2
+        },
+        "velocityFps": {
+          "near": 15,
+          "far": 35,
+          "nearToYd": 800
+        }
+      }
+    },
+    {
+      "id": "g7_308_175_wind",
+      "source": "py-ballisticcalc 3.1.1",
+      "sourceUrl": "https://pypi.org/project/py-ballisticcalc/",
+      "retrievedAt": "2026-10-29",
+      "notes": "Generator label: .308 175 gr, G7 0.243, 2600 fps, ICAO std, 10 mph from 3 o'clock. Spin drift and Coriolis off (twist = 0). Zeroed in the shot atmosphere. The label's wind clock is py-ballisticcalc's (3 = from the left); in this repo's convention it is 9 o'clock.",
+      "input": {
+        "dragFunction": "G7",
+        "bc": 0.243,
+        "bulletWeightGr": 175,
+        "bulletDiameterIn": 0.308,
+        "muzzleVelocityFps": 2600,
+        "sightHeightIn": 1.5,
+        "zeroRangeYd": 100,
+        "temperatureF": 59.0,
+        "pressureInHg": 29.92,
+        "pressureType": "station",
+        "altitudeFt": 0,
+        "humidityPercent": 0,
+        "windSpeedMph": 10,
+        "windClock": 9,
+        "sourceWindClock": 3,
+        "inclineDeg": 0,
+        "spinDrift": false
+      },
+      "expected": [
+        {
+          "rangeYd": 100,
+          "dropIn": 0.0,
+          "elevationMil": 0.0,
+          "windageIn": 0.76,
+          "windageMil": 0.21,
+          "velocityFps": 2417.0,
+          "timeS": 0.12
+        },
+        {
+          "rangeYd": 200,
+          "dropIn": -4.46,
+          "elevationMil": 0.62,
+          "windageIn": 3.14,
+          "windageMil": 0.44,
+          "velocityFps": 2241.0,
+          "timeS": 0.249
+        },
+        {
+          "rangeYd": 300,
+          "dropIn": -15.86,
+          "elevationMil": 1.47,
+          "windageIn": 7.32,
+          "windageMil": 0.68,
+          "velocityFps": 2073.0,
+          "timeS": 0.388
+        },
+        {
+          "rangeYd": 400,
+          "dropIn": -35.36,
+          "elevationMil": 2.46,
+          "windageIn": 13.53,
+          "windageMil": 0.94,
+          "velocityFps": 1913.0,
+          "timeS": 0.538
+        },
+        {
+          "rangeYd": 500,
+          "dropIn": -64.38,
+          "elevationMil": 3.58,
+          "windageIn": 22.01,
+          "windageMil": 1.22,
+          "velocityFps": 1758.0,
+          "timeS": 0.702
+        },
+        {
+          "rangeYd": 600,
+          "dropIn": -104.68,
+          "elevationMil": 4.85,
+          "windageIn": 33.09,
+          "windageMil": 1.53,
+          "velocityFps": 1610.0,
+          "timeS": 0.88
+        },
+        {
+          "rangeYd": 700,
+          "dropIn": -158.44,
+          "elevationMil": 6.29,
+          "windageIn": 47.14,
+          "windageMil": 1.87,
+          "velocityFps": 1467.0,
+          "timeS": 1.076
+        },
+        {
+          "rangeYd": 800,
+          "dropIn": -228.41,
+          "elevationMil": 7.93,
+          "windageIn": 64.64,
+          "windageMil": 2.24,
+          "velocityFps": 1330.0,
+          "timeS": 1.29
+        },
+        {
+          "rangeYd": 900,
+          "dropIn": -318.12,
+          "elevationMil": 9.82,
+          "windageIn": 86.13,
+          "windageMil": 2.66,
+          "velocityFps": 1201.0,
+          "timeS": 1.528
+        },
+        {
+          "rangeYd": 1000,
+          "dropIn": -432.03,
+          "elevationMil": 12.0,
+          "windageIn": 112.15,
+          "windageMil": 3.12,
+          "velocityFps": 1088.0,
+          "timeS": 1.791
+        }
+      ],
+      "tolerance": {
+        "elevationMil": {
+          "near": 0.1,
+          "far": 0.25,
+          "nearToYd": 800,
+          "farBelowMach": 1.2
+        },
+        "windageMil": {
+          "near": 0.05,
+          "far": 0.15,
+          "nearToYd": 800,
+          "farBelowMach": 1.2
+        },
+        "velocityFps": {
+          "near": 15,
+          "far": 35,
+          "nearToYd": 800
+        }
+      }
+    },
+    {
+      "id": "g1_223_77_std",
+      "source": "py-ballisticcalc 3.1.1",
+      "sourceUrl": "https://pypi.org/project/py-ballisticcalc/",
+      "retrievedAt": "2026-10-29",
+      "notes": "Generator label: .224 77 gr, G1 0.372, 2750 fps, ICAO std, no wind. Spin drift and Coriolis off (twist = 0). Zeroed in the shot atmosphere.",
+      "input": {
+        "dragFunction": "G1",
+        "bc": 0.372,
+        "bulletWeightGr": 77,
+        "bulletDiameterIn": 0.224,
+        "muzzleVelocityFps": 2750,
+        "sightHeightIn": 2.6,
+        "zeroRangeYd": 100,
+        "temperatureF": 59.0,
+        "pressureInHg": 29.92,
+        "pressureType": "station",
+        "altitudeFt": 0,
+        "humidityPercent": 0,
+        "windSpeedMph": 0,
+        "windClock": 9,
+        "sourceWindClock": 3,
+        "inclineDeg": 0,
+        "spinDrift": false
+      },
+      "expected": [
+        {
+          "rangeYd": 100,
+          "dropIn": 0.0,
+          "elevationMil": 0.0,
+          "windageIn": 0.0,
+          "windageMil": 0.0,
+          "velocityFps": 2506.0,
+          "timeS": 0.114
+        },
+        {
+          "rangeYd": 200,
+          "dropIn": -2.95,
+          "elevationMil": 0.41,
+          "windageIn": 0.0,
+          "windageMil": 0.0,
+          "velocityFps": 2275.0,
+          "timeS": 0.24
+        },
+        {
+          "rangeYd": 300,
+          "dropIn": -12.65,
+          "elevationMil": 1.17,
+          "windageIn": 0.0,
+          "windageMil": 0.0,
+          "velocityFps": 2056.0,
+          "timeS": 0.379
+        },
+        {
+          "rangeYd": 400,
+          "dropIn": -30.61,
+          "elevationMil": 2.13,
+          "windageIn": 0.0,
+          "windageMil": 0.0,
+          "velocityFps": 1850.0,
+          "timeS": 0.533
+        },
+        {
+          "rangeYd": 500,
+          "dropIn": -58.76,
+          "elevationMil": 3.26,
+          "windageIn": 0.0,
+          "windageMil": 0.0,
+          "velocityFps": 1658.0,
+          "timeS": 0.704
+        },
+        {
+          "rangeYd": 600,
+          "dropIn": -99.62,
+          "elevationMil": 4.61,
+          "windageIn": 0.0,
+          "windageMil": 0.0,
+          "velocityFps": 1483.0,
+          "timeS": 0.895
+        },
+        {
+          "rangeYd": 700,
+          "dropIn": -156.33,
+          "elevationMil": 6.2,
+          "windageIn": 0.0,
+          "windageMil": 0.0,
+          "velocityFps": 1329.0,
+          "timeS": 1.109
+        },
+        {
+          "rangeYd": 800,
+          "dropIn": -232.77,
+          "elevationMil": 8.08,
+          "windageIn": 0.0,
+          "windageMil": 0.0,
+          "velocityFps": 1201.0,
+          "timeS": 1.347
+        }
+      ],
+      "tolerance": {
+        "elevationMil": {
+          "near": 0.1,
+          "far": 0.25,
+          "nearToYd": 800,
+          "farBelowMach": 1.2
+        },
+        "windageMil": {
+          "near": 0.05,
+          "far": 0.15,
+          "nearToYd": 800,
+          "farBelowMach": 1.2
+        },
+        "velocityFps": {
+          "near": 15,
+          "far": 35,
+          "nearToYd": 800
+        }
+      }
+    },
+    {
+      "id": "g7_300wm_215_cold_high",
+      "source": "py-ballisticcalc 3.1.1",
+      "sourceUrl": "https://pypi.org/project/py-ballisticcalc/",
+      "retrievedAt": "2026-10-29",
+      "notes": "Generator label: .308 215 gr, G7 0.354, 2850 fps, 20 F, 24.90 inHg station, 50% RH, 5 mph from 9. Spin drift and Coriolis off (twist = 0). Zeroed in the shot atmosphere. The label's wind clock is py-ballisticcalc's (9 = see conventions.wind_clock); in this repo's convention it is 3 o'clock.",
+      "input": {
+        "dragFunction": "G7",
+        "bc": 0.354,
+        "bulletWeightGr": 215,
+        "bulletDiameterIn": 0.308,
+        "muzzleVelocityFps": 2850,
+        "sightHeightIn": 1.75,
+        "zeroRangeYd": 100,
+        "temperatureF": 20.0,
+        "pressureInHg": 24.9,
+        "pressureType": "station",
+        "altitudeFt": 5500,
+        "humidityPercent": 50,
+        "windSpeedMph": 5,
+        "windClock": 3,
+        "sourceWindClock": 9,
+        "inclineDeg": 0,
+        "spinDrift": false
+      },
+      "expected": [
+        {
+          "rangeYd": 100,
+          "dropIn": 0.0,
+          "elevationMil": 0.0,
+          "windageIn": -0.2,
+          "windageMil": -0.05,
+          "velocityFps": 2733.0,
+          "timeS": 0.107
+        },
+        {
+          "rangeYd": 200,
+          "dropIn": -2.91,
+          "elevationMil": 0.4,
+          "windageIn": -0.8,
+          "windageMil": -0.11,
+          "velocityFps": 2618.0,
+          "timeS": 0.22
+        },
+        {
+          "rangeYd": 300,
+          "dropIn": -10.89,
+          "elevationMil": 1.01,
+          "windageIn": -1.85,
+          "windageMil": -0.17,
+          "velocityFps": 2506.0,
+          "timeS": 0.337
+        },
+        {
+          "rangeYd": 400,
+          "dropIn": -24.41,
+          "elevationMil": 1.69,
+          "windageIn": -3.36,
+          "windageMil": -0.23,
+          "velocityFps": 2396.0,
+          "timeS": 0.459
+        },
+        {
+          "rangeYd": 500,
+          "dropIn": -43.99,
+          "elevationMil": 2.44,
+          "windageIn": -5.37,
+          "windageMil": -0.3,
+          "velocityFps": 2289.0,
+          "timeS": 0.587
+        },
+        {
+          "rangeYd": 600,
+          "dropIn": -70.21,
+          "elevationMil": 3.25,
+          "windageIn": -7.92,
+          "windageMil": -0.37,
+          "velocityFps": 2185.0,
+          "timeS": 0.722
+        },
+        {
+          "rangeYd": 700,
+          "dropIn": -103.71,
+          "elevationMil": 4.12,
+          "windageIn": -11.03,
+          "windageMil": -0.44,
+          "velocityFps": 2083.0,
+          "timeS": 0.862
+        },
+        {
+          "rangeYd": 800,
+          "dropIn": -145.23,
+          "elevationMil": 5.04,
+          "windageIn": -14.75,
+          "windageMil": -0.51,
+          "velocityFps": 1985.0,
+          "timeS": 1.01
+        },
+        {
+          "rangeYd": 900,
+          "dropIn": -195.58,
+          "elevationMil": 6.04,
+          "windageIn": -19.12,
+          "windageMil": -0.59,
+          "velocityFps": 1889.0,
+          "timeS": 1.165
+        },
+        {
+          "rangeYd": 1000,
+          "dropIn": -255.68,
+          "elevationMil": 7.1,
+          "windageIn": -24.19,
+          "windageMil": -0.67,
+          "velocityFps": 1796.0,
+          "timeS": 1.328
+        },
+        {
+          "rangeYd": 1100,
+          "dropIn": -326.57,
+          "elevationMil": 8.25,
+          "windageIn": -30.02,
+          "windageMil": -0.76,
+          "velocityFps": 1704.0,
+          "timeS": 1.499
+        },
+        {
+          "rangeYd": 1200,
+          "dropIn": -409.45,
+          "elevationMil": 9.48,
+          "windageIn": -36.67,
+          "windageMil": -0.85,
+          "velocityFps": 1615.0,
+          "timeS": 1.68
+        }
+      ],
+      "tolerance": {
+        "elevationMil": {
+          "near": 0.1,
+          "far": 0.25,
+          "nearToYd": 800,
+          "farBelowMach": 1.2
+        },
+        "windageMil": {
+          "near": 0.05,
+          "far": 0.15,
+          "nearToYd": 800,
+          "farBelowMach": 1.2
+        },
+        "velocityFps": {
+          "near": 15,
+          "far": 35,
+          "nearToYd": 800
+        }
+      }
+    },
+    {
+      "id": "g1_6mm_108_hot_humid",
+      "source": "py-ballisticcalc 3.1.1",
+      "sourceUrl": "https://pypi.org/project/py-ballisticcalc/",
+      "retrievedAt": "2026-10-29",
+      "notes": "Generator label: 6mm 108 gr, G1 0.536, 2960 fps, 95 F, 29.00 inHg station, 80% RH, 8 mph from 2 o'clock. Spin drift and Coriolis off (twist = 0). Zeroed in the shot atmosphere. The label's wind clock is py-ballisticcalc's (2 = see conventions.wind_clock); in this repo's convention it is 8 o'clock.",
+      "input": {
+        "dragFunction": "G1",
+        "bc": 0.536,
+        "bulletWeightGr": 108,
+        "bulletDiameterIn": 0.243,
+        "muzzleVelocityFps": 2960,
+        "sightHeightIn": 1.5,
+        "zeroRangeYd": 100,
+        "temperatureF": 95.0,
+        "pressureInHg": 29.0,
+        "pressureType": "station",
+        "altitudeFt": 900,
+        "humidityPercent": 80,
+        "windSpeedMph": 8,
+        "windClock": 8,
+        "sourceWindClock": 2,
+        "inclineDeg": 0,
+        "spinDrift": false
+      },
+      "expected": [
+        {
+          "rangeYd": 100,
+          "dropIn": 0.0,
+          "elevationMil": 0.0,
+          "windageIn": 0.35,
+          "windageMil": 0.1,
+          "velocityFps": 2799.0,
+          "timeS": 0.104
+        },
+        {
+          "rangeYd": 200,
+          "dropIn": -2.94,
+          "elevationMil": 0.41,
+          "windageIn": 1.45,
+          "windageMil": 0.2,
+          "velocityFps": 2643.0,
+          "timeS": 0.215
+        },
+        {
+          "rangeYd": 300,
+          "dropIn": -10.86,
+          "elevationMil": 1.01,
+          "windageIn": 3.34,
+          "windageMil": 0.31,
+          "velocityFps": 2493.0,
+          "timeS": 0.331
+        },
+        {
+          "rangeYd": 400,
+          "dropIn": -24.38,
+          "elevationMil": 1.69,
+          "windageIn": 6.11,
+          "windageMil": 0.42,
+          "velocityFps": 2347.0,
+          "timeS": 0.455
+        },
+        {
+          "rangeYd": 500,
+          "dropIn": -44.22,
+          "elevationMil": 2.46,
+          "windageIn": 9.84,
+          "windageMil": 0.55,
+          "velocityFps": 2206.0,
+          "timeS": 0.587
+        },
+        {
+          "rangeYd": 600,
+          "dropIn": -71.2,
+          "elevationMil": 3.3,
+          "windageIn": 14.6,
+          "windageMil": 0.68,
+          "velocityFps": 2071.0,
+          "timeS": 0.728
+        },
+        {
+          "rangeYd": 700,
+          "dropIn": -106.29,
+          "elevationMil": 4.22,
+          "windageIn": 20.51,
+          "windageMil": 0.81,
+          "velocityFps": 1940.0,
+          "timeS": 0.877
+        },
+        {
+          "rangeYd": 800,
+          "dropIn": -150.62,
+          "elevationMil": 5.23,
+          "windageIn": 27.66,
+          "windageMil": 0.96,
+          "velocityFps": 1815.0,
+          "timeS": 1.037
+        },
+        {
+          "rangeYd": 900,
+          "dropIn": -205.51,
+          "elevationMil": 6.34,
+          "windageIn": 36.18,
+          "windageMil": 1.12,
+          "velocityFps": 1696.0,
+          "timeS": 1.208
+        },
+        {
+          "rangeYd": 1000,
+          "dropIn": -272.49,
+          "elevationMil": 7.57,
+          "windageIn": 46.16,
+          "windageMil": 1.28,
+          "velocityFps": 1584.0,
+          "timeS": 1.391
+        }
+      ],
+      "tolerance": {
+        "elevationMil": {
+          "near": 0.1,
+          "far": 0.25,
+          "nearToYd": 800,
+          "farBelowMach": 1.2
+        },
+        "windageMil": {
+          "near": 0.05,
+          "far": 0.15,
+          "nearToYd": 800,
+          "farBelowMach": 1.2
+        },
+        "velocityFps": {
+          "near": 15,
+          "far": 35,
+          "nearToYd": 800
+        }
+      }
+    }
+  ]
 }

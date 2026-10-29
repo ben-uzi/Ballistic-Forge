@@ -5,8 +5,10 @@ it up next — including the parts that are shaky.
 
 ## Status
 
-All eight phases are complete. **523 tests pass**: 489 unit and integration tests across the three
-packages, plus 34 Playwright end-to-end tests on desktop and mobile viewports.
+All eight phases are complete. **494 unit and integration tests pass** across the three packages,
+including 5 external reference trajectories (added 2026-10-29), plus 34 Playwright end-to-end tests
+on desktop and mobile viewports (last run at the end of phase 8; the reference-case change touched
+only engine tests).
 
 | Phase | Scope                                  | State |
 | ----- | -------------------------------------- | ----- |
@@ -27,7 +29,7 @@ Engine coverage: **99.7% lines, 93.2% branches, 100% functions**.
 ```sh
 pnpm install
 pnpm dev                           # http://localhost:3000 — works with no env vars
-pnpm gate                          # typecheck + lint + 489 tests
+pnpm gate                          # typecheck + lint + 494 tests
 pnpm --filter @bf/web e2e          # 34 end-to-end tests
 pnpm seed                          # validate seed CSVs, regenerate seed.sql + the bundled library
 ```
@@ -74,12 +76,19 @@ These are the honest edges of the model. Read them before trusting a number at d
 
 - **Point-mass (3DOF)** with standard G1/G7 drag functions. No 6DOF, no custom drag curves yet —
   the `DragModel` interface is ready for them.
-- **Drag tables were transcribed, not downloaded.** A single wrong digit would bias every solution.
-  Verify against source (NEEDS_CHAD 4a).
-- **Not validated against an external solver.** The reference-case harness exists and skips until
-  `reference_cases.json` is filled (NEEDS_CHAD 4). Until then correctness rests on analytical and
-  physical tests: vacuum parabola, step-size convergence, wind symmetry, incline symmetry, zero
-  round-trips, truing round-trips.
+- **Drag tables were transcribed, not downloaded.** They have since been compared row by row with
+  py-ballisticcalc 3.1.1's G1 (79 rows) and G7 (84 rows) tables and match exactly. The JBM file
+  comparison in NEEDS_CHAD 4a has not been done.
+- **Validated against one external solver, not yet two.** `reference_cases.json` holds 5 cases
+  (50 rows, 100–1,200 yd, G1 and G7, standard and non-standard air, wind) from py-ballisticcalc 3.1.1.
+  All pass the file's tolerance bands with a lot of room: at most 0.005 MRAD of elevation or wind
+  difference (the rounding of the reference values) and under 1 fps of velocity, transonic included.
+  py-ballisticcalc descends from JBM, so this shows the engine does what that family of solvers
+  does. It does not show both are right. Still untested externally: incline, spin drift, Coriolis,
+  and a solver from a different lineage (NEEDS_CHAD 4).
+- **Wind clock conventions differ between solvers.** py-ballisticcalc's 3 o'clock is a wind from the
+  _left_; ours is from the right. The fixture converts this explicitly (see its README). Anyone
+  adding reference data from another tool should check this first.
 - **Constant atmosphere along the flight path** — no density change with bullet height.
 - **Single constant wind zone**; no vertical wind.
 - **Spin drift is the Litz empirical formula**, applied as a lateral offset after integration. No
@@ -142,11 +151,12 @@ Other seams worth knowing:
 
 1. **Create the Supabase project** and paste the keys into `apps/web/.env.local` (NEEDS_CHAD 1).
    Everything marked "stubbed" above unblocks from this one step.
-2. **Fill `reference_cases.json`** by running five loads through JBM and Hornady 4DOF
-   (NEEDS_CHAD 4). This is the single highest-value task in the list: it turns "the tests say the
-   maths is self-consistent" into "the solver agrees with established solvers".
-3. **Verify the G1/G7 drag tables** against JBM's published files (NEEDS_CHAD 4a) — fifteen minutes,
-   and it underwrites every number the product produces.
+2. **Add a second reference solver** from a different lineage (Hornady 4DOF or Applied Ballistics),
+   plus incline cases, to `reference_cases.json` (NEEDS_CHAD 4). The py-ballisticcalc cases already
+   pass; a second, unrelated solver is what turns "agrees with one solver" into "agrees with
+   established solvers".
+3. **Close out the G1/G7 drag table check** against JBM's published files (NEEDS_CHAD 4a). The
+   tables already match py-ballisticcalc exactly, so this should be a five-minute confirmation.
 4. **Build the sign-in UI** (magic link + Google) and the guest → account migration, which already
    has its data path in `exportAll`/`importAll`.
 5. **Wire the aggregation core into an Edge Function** on session submit, plus a nightly
@@ -166,7 +176,7 @@ Other seams worth knowing:
 | Criterion                                                                                                        | Verdict                                                                                                                               |
 | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | Guest opens the site on a phone, picks a load, enters conditions, gets a 0–1,200 yd solution in under 30 seconds | **Yes.** Covered by an end-to-end test on a Pixel 7 viewport; the calculator solves on load with no input.                            |
-| Engine passes all §5.8 tests; reference harness skips cleanly until filled                                       | **Yes.** 186 engine tests; the reference harness skips with the fixture empty.                                                        |
+| Engine passes all §5.8 tests; reference harness skips cleanly until filled                                       | **Yes.** 191 engine tests; the reference harness now runs 5 py-ballisticcalc cases, all passing.                                      |
 | Logged-in user creates rifle → load → suppressor, toggles suppressed, prints a DOPE card in 3 formats            | **Partly.** All of it works as a guest, and PDFs are rendered to real bytes in all three formats by test. "Logged-in" needs accounts. |
 | User logs a session, sees their stats, and it lands in aggregates server-side                                    | **Partly.** Logging and personal stats work; the server-side half needs the backend.                                                  |
 | Field aggregates compute correctly with outlier handling, CI, user caps — hidden while the flag is off           | **Yes.** 44 tests on the core; the flag gate is enforced in row-level security and tested.                                            |
@@ -176,6 +186,8 @@ Other seams worth knowing:
 | Deployed-ready to Vercel; README and `.env.example` complete                                                     | **Ready, not deployed.** Settings are in the README; no project was created, by request.                                              |
 | `HANDOFF.md` written honestly, including what is shaky                                                           | This document.                                                                                                                        |
 
-The two genuinely shaky things, stated plainly: **the engine has never been checked against another
-solver**, and **the drag tables were typed in by hand**. Both are cheap to resolve and both are at
-the top of the list above.
+The two things that were shaky at handoff are now partly resolved. **The engine agrees with
+py-ballisticcalc** to the rounding of its output across five cases out to 1,200 yd, and **the
+hand-typed drag tables match py-ballisticcalc's exactly**. What remains shaky: that solver shares
+JBM's lineage, so a second, unrelated solver and a field check are still needed before the numbers
+can be called validated.
