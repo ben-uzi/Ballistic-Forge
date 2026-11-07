@@ -15,6 +15,7 @@ One line each: **decision** — reason — how to reverse.
 - **Strict compiler extras: `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`** — catches drag-table index and optional-input bugs at compile time — remove from `tsconfig.base.json`.
 - **LF line endings enforced via `.gitattributes` + Prettier** — repo is developed on Windows but deployed on Linux — change `eol` in `.gitattributes`.
 - **Kept pnpm's auto-added `minimumReleaseAgeExclude` for `typescript-eslint@8.72.1`** — pnpm 12 blocks packages newer than its release-age window; these are the official typescript-eslint packages — delete the list from `pnpm-workspace.yaml` and downgrade typescript-eslint to an older release.
+- **`allowBuilds` in `pnpm-workspace.yaml`: `esbuild: true`, `fsevents: false`** — pnpm 12 fails install (`ERR_PNPM_IGNORED_BUILDS`) on unreviewed install scripts, which broke Vercel; an audit of every locked package (incl. Linux-only binaries) found only esbuild's `postinstall` (sharp 0.35, lightningcss, tailwind oxide ship prebuilt binaries with no hooks); fsevents is macOS-only, prebuilt, and only has the registry's auto `node-gyp rebuild` — flip a value or remove the entry.
 - **GitHub Actions CI runs the phase gate + `format:check`** — Chad reviews in batches; CI makes red builds visible — delete `.github/workflows/ci.yml` (no remote configured yet, so it is inert until pushed to GitHub).
 
 ## Phase 1 — Engine

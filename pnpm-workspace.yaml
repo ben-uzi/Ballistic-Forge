@@ -2,6 +2,12 @@ packages:
   - packages/*
   - apps/*
 
+# pnpm 12 fails install (strictDepBuilds) on any unlisted dependency with an install script.
+# fsevents is macOS-only and ships a prebuilt binary; its registry-injected node-gyp hook is not needed.
+allowBuilds:
+  esbuild: true
+  fsevents: false
+
 minimumReleaseAgeExclude:
   - '@typescript-eslint/eslint-plugin@8.72.1'
   - '@typescript-eslint/parser@8.72.1'
